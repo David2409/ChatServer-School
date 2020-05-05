@@ -1,0 +1,7 @@
+#Database settings
+database=jdbc:mysql://localhost:3306/chatserver?serverTimezone=UTC&autoReconnect=true
+databaseUser=chatserver_server
+databasePassword=goodPassword
+
+#Server Settings
+invalidCharacters=;"'´`,
