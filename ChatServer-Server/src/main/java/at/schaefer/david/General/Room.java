@@ -4,7 +4,6 @@ import at.schaefer.david.DTO.DTOMessage;
 import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -13,7 +12,6 @@ import java.util.List;
 
 public class Room {
     public long id;
-
     private List<User> activeUsers;
     private Server server;
 
@@ -23,8 +21,18 @@ public class Room {
         activeUsers = new ArrayList<User>();
     }
 
+    public static Room Create(String name, Server server) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        statement.execute("INSERT INTO room (`server_id`, `name`) VALUES ('" + server.id + "','" + name + "');", Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();
+        long id = rs.getLong(1);
+        statement.close();
+        return new Room(id, server);
+    }
+
     public void Emit(User from, String msg) throws SQLException, InvalidMessageException, JsonProcessingException, InvalidOperationException {
-        if(CanSend(from.id) == false){
+        if(User.CanSend(from.id, this.id) == false){
             throw new InvalidOperationException();
         }
         DTOMessage message = new DTOMessage(server.id, this.id, from.id, msg);
@@ -43,14 +51,5 @@ public class Room {
 
     public synchronized void Remove(User u){
         activeUsers.remove(u);
-    }
-
-    private boolean CanSend(long userId) throws SQLException {
-        Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) WHERE ur.user_id = '" + userId + "' AND rr.room_id = '" + this.id + "' AND rr.canwrite = TRUE;");
-        rs.next();
-        boolean can = rs.getInt(1) != 0;
-        statement.close();
-        return can;
     }
 }

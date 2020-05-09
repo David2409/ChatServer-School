@@ -1,11 +1,8 @@
 package at.schaefer.david.General;
 
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import javafx.util.converter.CharacterStringConverter;
-
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
@@ -13,7 +10,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 
 public class Global {
@@ -41,8 +37,19 @@ public class Global {
         return DATEFORMAT.format(date);
     }
 
-    public static String HashString(String string) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-256");
-        return new String(digest.digest(string.getBytes()));
+    public static String ReplaceCharacters(String string, char[] characters, char with){
+        for (char c : characters) {
+            string.replaceAll(String.valueOf(c), String.valueOf(with));
+        }
+        return string;
+    }
+
+    public static String HashPassword(String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        return HashString(HashString(password) + password);
+    }
+
+    private static String HashString(String string) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-512");
+        return String.format("%0128x", new BigInteger(1,digest.digest(string.getBytes("UTF-8"))));
     }
 }
