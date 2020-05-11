@@ -92,8 +92,10 @@ public class User {
         System.out.println(Global.HashPassword("Hallo").length());
         User user = User.CreateUser(null, "testuser", "test");
         Server server = Server.CreateServer("TestServer");
-        Server.Add(server.id, user.id);
+        server.AddUser(user.id);
+        long roleId = Role.Create("TestRole", server.id);
+        long roomId = Room.Create(server.id, "Test Room");
+        Role.Change(server.id, new String[] {roleId + "," + roomId + ",TRUE,TRUE,TRUE"});
         server.JoinSession(user);
-
     }
 }

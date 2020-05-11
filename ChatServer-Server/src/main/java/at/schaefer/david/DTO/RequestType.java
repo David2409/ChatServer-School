@@ -1,0 +1,18 @@
+package at.schaefer.david.DTO;
+
+public enum RequestType {
+    CREATE_USER,
+    CREATE_SERVER,
+    CREATE_ROLE,
+    DELETE_USER,
+    DELETE_SERVER,
+    DELETE_ROLE,
+    CHANGE_USER_NAME,
+    CHANGE_USER_PASSWORD,
+    CHANGE_SERVER_NAME,
+    CHANGE_ROLE_NAME,
+    CHANGE_ROLE_PRIVILEGES,
+    LOGIN,
+    LOGOUT,
+    MORE_MESSAGES
+}

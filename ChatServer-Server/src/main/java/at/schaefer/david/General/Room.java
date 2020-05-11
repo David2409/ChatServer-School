@@ -1,6 +1,8 @@
 package at.schaefer.david.General;
 
 import at.schaefer.david.DTO.DTOMessage;
+import at.schaefer.david.DTO.DTOResponse;
+import at.schaefer.david.DTO.ResponseType;
 import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,32 +17,26 @@ public class Room {
     private List<User> activeUsers;
     private Server server;
 
-    public Room(long iId, Server iServer){
+    protected Room(long iId, Server iServer){
         id = iId;
         server = iServer;
         activeUsers = new ArrayList<User>();
     }
 
-    public static Room Create(String name, Server server) throws SQLException {
-        Statement statement = Global.conDatabase.createStatement();
-        statement.execute("INSERT INTO room (`server_id`, `name`) VALUES ('" + server.id + "','" + name + "');", Statement.RETURN_GENERATED_KEYS);
-        ResultSet rs = statement.getGeneratedKeys();
-        rs.next();
-        long id = rs.getLong(1);
-        statement.close();
+    public static Room Get(long id, Server server) throws SQLException {
         return new Room(id, server);
     }
 
     public void Emit(User from, String msg) throws SQLException, InvalidMessageException, JsonProcessingException, InvalidOperationException {
-        if(User.CanSend(from.id, this.id) == false){
+        if(from == null || User.CanSend(from.id, this.id) == false){
             throw new InvalidOperationException();
         }
-        DTOMessage message = new DTOMessage(server.id, this.id, from.id, msg);
+        DTOMessage message = new DTOMessage(server, this, from, msg);
         message.InsertIntoDTB();
-        String toSend = message.toJSON();
+        DTOResponse response = new DTOResponse(ResponseType.NEW_MESSAGE, message);
         synchronized (activeUsers){
             for(User user : activeUsers){
-                user.connection.send(toSend);
+                user.connection.send(response.toJSON());
             }
         }
     }
@@ -51,5 +47,26 @@ public class Room {
 
     public synchronized void Remove(User u){
         activeUsers.remove(u);
+    }
+
+    public static long Create(long serverId, String name) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        statement.execute("INSERT INTO room (`server_id`, `name`) VALUES ('" + serverId + "','" + name + "');", Statement.RETURN_GENERATED_KEYS);
+        ResultSet rs = statement.getGeneratedKeys();
+        rs.next();
+        long id = rs.getLong(1);
+        statement.close();
+        return id;
+    }
+
+    public void Delete() throws SQLException, InvalidOperationException {
+        int index = server.GetRoomIndex(this.id);
+        if(index == -1){
+            throw new InvalidOperationException();
+        }
+        server.RemoveRoom(index);
+        Statement statement = Global.conDatabase.createStatement();
+        statement.execute("DELETE FROM room WHERE id = '" + this.id + "';");
+        statement.close();
     }
 }

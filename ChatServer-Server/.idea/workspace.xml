@@ -157,25 +157,25 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="1240" y="311" width="424" height="491" key="FileChooserDialogImpl/70.27.1850.1053@70.27.1850.1053" timestamp="1586102515788" />
-    <state width="1877" height="248" key="GridCell.Tab.0.bottom" timestamp="1589057249938">
+    <state width="1877" height="284" key="GridCell.Tab.0.bottom" timestamp="1589142578783">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="248" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1589057249938" />
+    <state width="1877" height="284" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1589142578783" />
     <state width="1804" height="275" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1584728725584" />
-    <state width="1877" height="248" key="GridCell.Tab.0.center" timestamp="1589057249938">
+    <state width="1877" height="284" key="GridCell.Tab.0.center" timestamp="1589142578783">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="248" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1589057249938" />
+    <state width="1877" height="284" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1589142578783" />
     <state width="1804" height="275" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1584728725583" />
-    <state width="1877" height="248" key="GridCell.Tab.0.left" timestamp="1589057249937">
+    <state width="1877" height="284" key="GridCell.Tab.0.left" timestamp="1589142578782">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="248" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1589057249937" />
+    <state width="1877" height="284" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1589142578782" />
     <state width="1804" height="275" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1584728725583" />
-    <state width="1877" height="248" key="GridCell.Tab.0.right" timestamp="1589057249938">
+    <state width="1877" height="284" key="GridCell.Tab.0.right" timestamp="1589142578783">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="248" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1589057249938" />
+    <state width="1877" height="284" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1589142578783" />
     <state width="1804" height="275" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1584728725584" />
     <state width="1877" height="248" key="GridCell.Tab.1.bottom" timestamp="1589057249938">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -201,11 +201,15 @@
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="440" y="95" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1589038878669" />
-    <state x="775" y="423" width="844" height="350" key="com.intellij.ide.util.TipDialog" timestamp="1589059240956">
+    <state x="775" y="423" width="844" height="350" key="com.intellij.ide.util.TipDialog" timestamp="1589179546239">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="775" y="423" width="844" height="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1589059240956" />
+    <state x="775" y="423" width="844" height="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1589179546239" />
     <state x="1113" y="381" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1584517503976" />
+    <state x="769" y="438" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1589140984461">
+      <screen x="0" y="0" width="1920" height="1040" />
+    </state>
+    <state x="769" y="438" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.0.1920.1040@0.0.1920.1040" timestamp="1589140984461" />
     <state x="304" y="212" width="1372" height="690" key="new project wizard" timestamp="1585171704963">
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
@@ -232,36 +236,6 @@
           <url>file://$PROJECT_DIR$/src/main/java/at/schaefer/david/General/Global.java</url>
           <line>27</line>
           <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/at/schaefer/david/General/Server.java</url>
-          <line>46</line>
-          <option name="timeStamp" value="27" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/at/schaefer/david/General/User.java</url>
-          <line>39</line>
-          <option name="timeStamp" value="28" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/at/schaefer/david/General/User.java</url>
-          <line>40</line>
-          <option name="timeStamp" value="29" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/at/schaefer/david/General/User.java</url>
-          <line>41</line>
-          <option name="timeStamp" value="30" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/at/schaefer/david/General/User.java</url>
-          <line>42</line>
-          <option name="timeStamp" value="31" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/at/schaefer/david/General/User.java</url>
-          <line>47</line>
-          <option name="timeStamp" value="32" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

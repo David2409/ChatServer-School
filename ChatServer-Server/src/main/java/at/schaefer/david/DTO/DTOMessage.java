@@ -56,12 +56,4 @@ public class DTOMessage {
         statement.execute("INSERT INTO messages (`room_id`, `user_id`, `sendedat`, `msg`) VALUES ('" + roomId + "', '" + userId + "', '" + sendedAt + "', '" + msg + "');");
         statement.close();
     }
-
-
-    public static void main(String[] args) throws IOException, InvalidMessageException, SQLException {
-        Global.init();
-        DTOMessage message = new DTOMessage(Server.GetServer(100), new Room(100, Server.GetServer(1)), null, "This is a message!!!");
-        System.out.println(message.toJSON());
-
-    }
 }
