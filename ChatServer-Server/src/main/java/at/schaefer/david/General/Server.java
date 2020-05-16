@@ -1,14 +1,13 @@
 package at.schaefer.david.General;
 
-import at.schaefer.david.DTO.DTOMessage;
-import at.schaefer.david.DTO.DTOResponse;
+import at.schaefer.david.Communication.Responses.DTOResponse;
+import at.schaefer.david.Communication.Responses.ResponseType;
 import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
 import at.schaefer.david.Structure.IIndex;
 import at.schaefer.david.Structure.Tree;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -19,10 +18,11 @@ import java.util.List;
 
 public class Server implements IIndex {
     public long id;
-    public boolean init;
-    protected Room[] rooms;
+    public Room[] rooms;
+    private boolean init;
     protected static Tree servers  = new Tree(8);
     protected List<User> onlineUsers;
+    protected long notificationRoomId;
 
     protected Server(long iId)
     {
@@ -60,13 +60,20 @@ public class Server implements IIndex {
             rooms[i] = Room.Get(rsRooms.getLong(1), this);
             rsRooms.next();
         }
-        init = true;
+        ResultSet rs =statement.executeQuery("SELECT notificationroom FROM server WHERE '" + this.id + "' AND notificationroom IS NOT NULL;");
+        if(rs.next()){
+            notificationRoomId = rs.getLong(1);
+        }
+        else{
+            notificationRoomId = rooms[0].id;
+        }
         statement.close();
+        init = true;
     }
 
     public void JoinSession(User user) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
-        ResultSet rsRooms = statement.executeQuery("SELECT DISTINCT r.id FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) JOIN role r ON (rr.room_id = r.id) WHERE ur.user_id = '" + user.id + "' AND r.server_id = '" + this.id + "' GROUP BY rr.room_id HAVING SUM(rr.cansee) = '0' ORDER BY r.id;");
+        ResultSet rsRooms = statement.executeQuery("SELECT DISTINCT r.id FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) JOIN role r ON (rr.room_id = r.id) WHERE ur.user_id = '" + user.GetId() + "' AND r.server_id = '" + this.id + "' GROUP BY rr.room_id HAVING SUM(rr.cansee) = '0' ORDER BY r.id;");
         synchronized (onlineUsers){
             onlineUsers.add(user);
         }
@@ -88,28 +95,41 @@ public class Server implements IIndex {
     public void AddUser(long userId) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("INSERT INTO server_user (`server_id`,`user_id`) VALUES ('" + this.id + "','" + userId + "');");
+        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '{user_id}';");
+        rs.next();
+        String username = rs.getString(1);
         statement.close();
-
+        EmitServerMessage("User '" + username + "' has join the Server");
     }
 
     public void RemoveUser(long userId) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("DELETE FROM server_user WHERE server_id = '" + this.id + "' AND user_id = '" + userId + "';");
+        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '{user_id}';");
+        rs.next();
+        String username = rs.getString(1);
         statement.close();
+        EmitServerMessage("User '" + username + "' has left the Server");
     }
 
     public void CreateRoom(String name) throws SQLException {
         long roomId = Room.Create(this.id, name);
         Room room = Room.Get(roomId, this);
         PutRoom(room);
-        try{
-            Emit(null, roomId, "Room has been created");
+        if(rooms.length == 1){
+            notificationRoomId = rooms[0].id;
         }
-        catch(Exception e){ }
+        EmitServerMessage("A Room has been created");
     }
 
     public void DeleteRoom(long roomId) throws SQLException, InvalidOperationException {
         rooms[GetRoomIndex(roomId)].Delete();
+        if(roomId == notificationRoomId){
+            if(rooms.length != 0){
+                notificationRoomId = rooms[0].id;
+            }
+        }
+        EmitServerMessage("A Room has been delete");
     }
 
     public void Emit(User from, long roomId, String msg) throws SQLException, InvalidMessageException, JsonProcessingException, InvalidOperationException {
@@ -124,12 +144,23 @@ public class Server implements IIndex {
 
     public void Emit(DTOResponse response) {
         try{
-            String msg = response.toJSON();
+            String message = response.toJSON();
             for (User u: onlineUsers) {
-                u.connection.send(msg);
+                u.GetConnection().send(message);
             }
-        }
-        catch (Exception e) {}
+        } catch (Exception e) {}
+    }
+
+    public void EmitServerMessage(String notification) {
+        try{
+            if(rooms.length > 0){
+                Emit(null, notificationRoomId, notification);
+            }
+        } catch (Exception e) { }
+    }
+
+    public DTOResponse GetMap(){
+        return new DTOResponse(ResponseType.SERVER_MAP, this);
     }
 
     public int[] GetIndex() {

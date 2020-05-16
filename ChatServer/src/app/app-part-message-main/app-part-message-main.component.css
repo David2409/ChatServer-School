@@ -1,0 +1,21 @@
+.bottem{
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+.mainContainer{
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+}
+.messageConationer{
+    overflow-y: auto;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 50px;
+}

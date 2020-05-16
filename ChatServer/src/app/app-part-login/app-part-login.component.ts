@@ -10,7 +10,7 @@ export class AppPartLoginComponent implements OnInit {
 
   //private socket;
 
-  constructor() {
+  constructor() {/*
     //var io = require("socket.io-client");
     //var socket = io.connect("ws://localhost:4444", { path: "/"});
     var socket = new WebSocket("ws:localhost:4444");
@@ -27,7 +27,7 @@ export class AppPartLoginComponent implements OnInit {
     
     socket.onerror = function(error){
       console.log(error);
-    }
+    }*/
   }
 
   ngOnInit() {

@@ -34,21 +34,21 @@
     <property name="project.structure.side.proportion" value="0.0" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/src/main/resources" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$" />
       <recent name="$PROJECT_DIR$/src/main/resources/Certificate" />
     </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/main/resources" />
+    </key>
   </component>
-  <component name="RunManager" selected="Application.User">
-    <configuration name="ChatServer" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="at.schaefer.david.ChatServer" />
+  <component name="RunManager" selected="Application.DTORequest">
+    <configuration name="DTOMessage" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="at.schaefer.david.Communication.DTO.DTOMessage" />
       <module name="ChatServer-Server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="at.schaefer.david.*" />
+          <option name="PATTERN" value="at.schaefer.david.Communication.Requests.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -56,12 +56,12 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="DTOMessage" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="at.schaefer.david.DTO.DTOMessage" />
+    <configuration name="DTORequest" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="at.schaefer.david.Communication.Requests.DTORequest" />
       <module name="ChatServer-Server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="at.schaefer.david.DTO.*" />
+          <option name="PATTERN" value="at.schaefer.david.Communication.Requests.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -70,11 +70,11 @@
       </method>
     </configuration>
     <configuration name="DTOResponse" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="at.schaefer.david.DTO.DTOResponse" />
+      <option name="MAIN_CLASS_NAME" value="at.schaefer.david.Communication.Responses.DTOResponse" />
       <module name="ChatServer-Server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="at.schaefer.david.DTO.*" />
+          <option name="PATTERN" value="at.schaefer.david.Communication.Requests.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -87,7 +87,7 @@
       <module name="ChatServer-Server" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="at.schaefer.david.DTO.*" />
+          <option name="PATTERN" value="at.schaefer.david.Communication.Requests.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -110,11 +110,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Application.DTORequest" />
         <item itemvalue="Application.User" />
         <item itemvalue="Application.Server" />
         <item itemvalue="Application.DTOResponse" />
         <item itemvalue="Application.DTOMessage" />
-        <item itemvalue="Application.ChatServer" />
       </list>
     </recent_temporary>
   </component>
@@ -141,10 +141,10 @@
     </state>
     <state x="761" y="242" key="#com.intellij.ide.util.MemberChooser/0.0.1920.1040@0.0.1920.1040" timestamp="1588256454879" />
     <state x="803" y="272" width="374" height="569" key="#com.intellij.ide.util.MemberChooser/70.27.1850.1053@70.27.1850.1053" timestamp="1583933609368" />
-    <state x="516" y="446" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1588670696416">
+    <state x="516" y="446" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog" timestamp="1589569607313">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="516" y="446" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1588670696416" />
+    <state x="516" y="446" key="#com.intellij.refactoring.move.MoveHandler.SelectRefactoringDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1589569607313" />
     <state x="610" y="0" key="#com.intellij.refactoring.rename.AutomaticRenamingDialog" timestamp="1588328188614">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
@@ -157,54 +157,54 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="1240" y="311" width="424" height="491" key="FileChooserDialogImpl/70.27.1850.1053@70.27.1850.1053" timestamp="1586102515788" />
-    <state width="1877" height="284" key="GridCell.Tab.0.bottom" timestamp="1589142578783">
+    <state width="1877" height="248" key="GridCell.Tab.0.bottom" timestamp="1589626106950">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="284" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1589142578783" />
+    <state width="1877" height="248" key="GridCell.Tab.0.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1589626106950" />
     <state width="1804" height="275" key="GridCell.Tab.0.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1584728725584" />
-    <state width="1877" height="284" key="GridCell.Tab.0.center" timestamp="1589142578783">
+    <state width="1877" height="248" key="GridCell.Tab.0.center" timestamp="1589626106949">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="284" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1589142578783" />
+    <state width="1877" height="248" key="GridCell.Tab.0.center/0.0.1920.1040@0.0.1920.1040" timestamp="1589626106949" />
     <state width="1804" height="275" key="GridCell.Tab.0.center/70.27.1850.1053@70.27.1850.1053" timestamp="1584728725583" />
-    <state width="1877" height="284" key="GridCell.Tab.0.left" timestamp="1589142578782">
+    <state width="1877" height="248" key="GridCell.Tab.0.left" timestamp="1589626106949">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="284" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1589142578782" />
+    <state width="1877" height="248" key="GridCell.Tab.0.left/0.0.1920.1040@0.0.1920.1040" timestamp="1589626106949" />
     <state width="1804" height="275" key="GridCell.Tab.0.left/70.27.1850.1053@70.27.1850.1053" timestamp="1584728725583" />
-    <state width="1877" height="284" key="GridCell.Tab.0.right" timestamp="1589142578783">
+    <state width="1877" height="248" key="GridCell.Tab.0.right" timestamp="1589626106949">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="284" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1589142578783" />
+    <state width="1877" height="248" key="GridCell.Tab.0.right/0.0.1920.1040@0.0.1920.1040" timestamp="1589626106949" />
     <state width="1804" height="275" key="GridCell.Tab.0.right/70.27.1850.1053@70.27.1850.1053" timestamp="1584728725584" />
-    <state width="1877" height="248" key="GridCell.Tab.1.bottom" timestamp="1589057249938">
+    <state width="1877" height="248" key="GridCell.Tab.1.bottom" timestamp="1589625858791">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="248" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1589057249938" />
+    <state width="1877" height="248" key="GridCell.Tab.1.bottom/0.0.1920.1040@0.0.1920.1040" timestamp="1589625858791" />
     <state width="1804" height="303" key="GridCell.Tab.1.bottom/70.27.1850.1053@70.27.1850.1053" timestamp="1584727009445" />
-    <state width="1877" height="248" key="GridCell.Tab.1.center" timestamp="1589057249938">
+    <state width="1877" height="248" key="GridCell.Tab.1.center" timestamp="1589625858791">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="248" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1589057249938" />
+    <state width="1877" height="248" key="GridCell.Tab.1.center/0.0.1920.1040@0.0.1920.1040" timestamp="1589625858791" />
     <state width="1804" height="303" key="GridCell.Tab.1.center/70.27.1850.1053@70.27.1850.1053" timestamp="1584727009444" />
-    <state width="1877" height="248" key="GridCell.Tab.1.left" timestamp="1589057249938">
+    <state width="1877" height="248" key="GridCell.Tab.1.left" timestamp="1589625858791">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="248" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1589057249938" />
+    <state width="1877" height="248" key="GridCell.Tab.1.left/0.0.1920.1040@0.0.1920.1040" timestamp="1589625858791" />
     <state width="1804" height="303" key="GridCell.Tab.1.left/70.27.1850.1053@70.27.1850.1053" timestamp="1584727009444" />
-    <state width="1877" height="248" key="GridCell.Tab.1.right" timestamp="1589057249938">
+    <state width="1877" height="248" key="GridCell.Tab.1.right" timestamp="1589625858791">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state width="1877" height="248" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1589057249938" />
+    <state width="1877" height="248" key="GridCell.Tab.1.right/0.0.1920.1040@0.0.1920.1040" timestamp="1589625858791" />
     <state width="1804" height="303" key="GridCell.Tab.1.right/70.27.1850.1053@70.27.1850.1053" timestamp="1584727009444" />
     <state x="440" y="95" key="SettingsEditor" timestamp="1589038878669">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
     <state x="440" y="95" key="SettingsEditor/0.0.1920.1040@0.0.1920.1040" timestamp="1589038878669" />
-    <state x="775" y="423" width="844" height="350" key="com.intellij.ide.util.TipDialog" timestamp="1589179546239">
+    <state x="775" y="423" width="844" height="350" key="com.intellij.ide.util.TipDialog" timestamp="1589658557129">
       <screen x="0" y="0" width="1920" height="1040" />
     </state>
-    <state x="775" y="423" width="844" height="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1589179546239" />
+    <state x="775" y="423" width="844" height="350" key="com.intellij.ide.util.TipDialog/0.0.1920.1040@0.0.1920.1040" timestamp="1589658557129" />
     <state x="1113" y="381" key="com.intellij.ide.util.TipDialog/70.27.1850.1053@70.27.1850.1053" timestamp="1584517503976" />
     <state x="769" y="438" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1589140984461">
       <screen x="0" y="0" width="1920" height="1040" />
@@ -214,9 +214,10 @@
       <screen x="70" y="27" width="1850" height="1053" />
     </state>
     <state x="304" y="212" width="1372" height="690" key="new project wizard/70.27.1850.1053@70.27.1850.1053" timestamp="1585171704963" />
-    <state x="658" y="259" width="672" height="678" key="search.everywhere.popup" timestamp="1584450005483">
-      <screen x="70" y="27" width="1850" height="1053" />
+    <state x="610" y="229" width="698" height="670" key="search.everywhere.popup" timestamp="1589285203338">
+      <screen x="0" y="0" width="1920" height="1040" />
     </state>
+    <state x="610" y="229" width="698" height="670" key="search.everywhere.popup/0.0.1920.1040@0.0.1920.1040" timestamp="1589285203338" />
     <state x="658" y="259" width="672" height="678" key="search.everywhere.popup/70.27.1850.1053@70.27.1850.1053" timestamp="1584450005483" />
   </component>
   <component name="XDebuggerManager">

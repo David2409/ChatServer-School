@@ -1,4 +1,4 @@
-package at.schaefer.david.DTO;
+package at.schaefer.david.Communication.Requests;
 
 public enum RequestType {
     CREATE_USER,
@@ -14,5 +14,6 @@ public enum RequestType {
     CHANGE_ROLE_PRIVILEGES,
     LOGIN,
     LOGOUT,
-    MORE_MESSAGES
+    MORE_MESSAGES,
+    SEND_MESSAGE
 }

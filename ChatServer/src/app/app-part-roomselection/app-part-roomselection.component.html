@@ -1,0 +1,5 @@
+<div id="roomSelectContainer">
+    <div class="">
+        <app-part-roomselection-item *ngFor="let room of server.rooms" [room]="room" [selected]="selectedRoom" (outRoom)="Emit($event)"> </app-part-roomselection-item>
+    </div>
+</div>

@@ -1,2 +1,5 @@
 <!--ng generate component xyz-->
-<app-part-login></app-part-login>
+<!--app-part-login></app-part-login-->
+<div class="mainContainer" style="background-color: grey;">
+    <app-part-main (eventChannel)="this.ExecuteEvent($event)" [servers]="servers"></app-part-main>
+</div>

@@ -1,17 +1,17 @@
-package at.schaefer.david.DTO;
+package at.schaefer.david.Communication.Responses;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-public class DTOResponse {
+public class DTOResponse<T> {
 
     public ResponseType type;
-    public Object data;
+    public T data;
 
     protected static final ObjectWriter OW = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
-    public DTOResponse(ResponseType iType, Object iData){
+    public DTOResponse(ResponseType iType, T iData){
         type = iType;
         data = iData;
     }

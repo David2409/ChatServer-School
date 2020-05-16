@@ -1,0 +1,3 @@
+<div id="serverSelectContainer">
+    <app-part-serverselection-item *ngFor="let s of servers" [server]="s" [selected]="selectedServer" (outServer)="Emit($event)"> </app-part-serverselection-item>
+</div>

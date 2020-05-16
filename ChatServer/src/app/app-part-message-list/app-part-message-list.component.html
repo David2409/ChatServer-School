@@ -1,0 +1,11 @@
+<div class="messageConationer">
+    <div>
+        <app-part-message *ngFor="let message of room.messages" [message]="message"></app-part-message>
+    </div>
+    <div *ngIf="room.newMessages.length != 0">
+        <div class="NewItemsHeader">
+            <div>NEW MESSAGES</div>
+        </div>
+        <app-part-message *ngFor="let message of room.newMessages" [message]="message"></app-part-message>
+    </div> 
+</div>

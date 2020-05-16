@@ -1,0 +1,8 @@
+<div class="mainContainer">
+    <div class="messageConationer">
+        <app-part-message-list [room]="room"></app-part-message-list>
+    </div>
+    <div class="bottem">
+        <app-part-message-input (eventChannel)="EventChannel($event)"></app-part-message-input>
+    </div>
+</div>

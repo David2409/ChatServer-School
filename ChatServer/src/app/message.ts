@@ -1,5 +1,10 @@
 export interface Message {
-    from: String, 
-    content: String,
-    sendAt: String
+    id: String,
+    serverId: String,
+    roomId: String,
+    from: String,
+    msg: String,
+    sendedAt: String
 }
+
+export const NullMessage : Message = {id: "null", serverId: "", roomId:"", from:"", msg:"", sendedAt:""};

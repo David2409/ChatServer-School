@@ -1,6 +1,9 @@
 package at.schaefer.david.General;
 
+import at.schaefer.david.Exceptions.InvalidMessageException;
+import at.schaefer.david.Exceptions.InvalidOperationException;
 import at.schaefer.david.Exceptions.InvalidUserException;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.java_websocket.WebSocket;
 import sun.security.action.GetLongAction;
 
@@ -9,15 +12,16 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
 public class User {
-    public Server[] servers;
-    public WebSocket connection;
+    private Server[] servers;
+    private WebSocket connection;
     public String name;
-    public long id;
+    private long id;
 
     protected User(WebSocket iConnection, long iId, String iName) throws SQLException {
         connection = iConnection;
@@ -57,34 +61,71 @@ public class User {
         return GetUser(connection, username, password);
     }
 
-    public void Disconnect(){
+    public void LogOut(){
         for (Server server: servers) {
             server.RemoveFromSession(this);
         }
-        connection.close();
     }
 
     public void DeleteUser() throws SQLException {
+        for (Server server: servers) {
+            server.RemoveUser(this.id);
+        }
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("DELETE FROM user WHERE id = '" + id + "';");
         statement.close();
     }
 
-    public static boolean CanModify(long userId, long serverId) throws SQLException { //do to
+    public boolean CanModify(long userId, long serverId) throws SQLException { //do to
         Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) WHERE ur.user_id = '" + userId + "' AND rr.room_id = '" + serverId + "' AND rr.canwrite = TRUE;");
+        ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) WHERE ur.user_id = '" + this.id + "' AND rr.room_id = '" + serverId + "' AND rr.canwrite = TRUE;");
         rs.next();
         boolean can = rs.getInt(1) != 0;
         statement.close();
         return can;
     }
 
-    public static boolean CanSend(long userId, long roomId) throws SQLException {
+    public boolean CanSend(long roomId) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '" + roomId + "' AND ur.user_id = '" + userId + "') GROUP BY rr.room_id HAVING SUM(rr.canwrite) = '0';");
+        ResultSet rs = statement.executeQuery("SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '" + roomId + "' AND ur.user_id = '" + this.id + "') GROUP BY rr.room_id HAVING SUM(rr.canwrite) = '0';");
         boolean can = !rs.next();
         statement.close();
         return can;
+    }
+
+    public long GetId(){
+        return id;
+    }
+
+    public WebSocket GetConnection(){
+        return connection;
+    }
+
+    public void SendMessage(long serverId, long RoomId, String msg) throws InvalidOperationException, JsonProcessingException, SQLException, InvalidMessageException {
+        Server server = GetServer(serverId);
+        if(server == null){
+            throw new InvalidOperationException();
+        }
+        server.Emit(this, RoomId, msg);
+    }
+
+    private Server GetServer(long id){
+        int left = 0;
+        int right = servers.length;
+        int center = 0;
+        do {
+            center = (left + right) / 2;
+            if(servers[center].id == id){
+                return servers[center];
+            }
+            else if(servers[center].id < id){
+                left = center;
+            }
+            else{
+                right = center;
+            }
+        } while(center != (left + right) / 2);
+        return null;
     }
 
     public static void main(String[] args) throws SQLException, IOException, NoSuchAlgorithmException, InvalidUserException {

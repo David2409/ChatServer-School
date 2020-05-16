@@ -1,8 +1,8 @@
 package at.schaefer.david.General;
 
-import at.schaefer.david.DTO.DTOMessage;
-import at.schaefer.david.DTO.DTOResponse;
-import at.schaefer.david.DTO.ResponseType;
+import at.schaefer.david.Communication.DTO.DTOMessage;
+import at.schaefer.david.Communication.Responses.DTOResponse;
+import at.schaefer.david.Communication.Responses.ResponseType;
 import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,7 +14,7 @@ import java.util.List;
 
 public class Room {
     public long id;
-    private List<User> activeUsers;
+    public List<User> activeUsers;
     private Server server;
 
     protected Room(long iId, Server iServer){
@@ -28,7 +28,7 @@ public class Room {
     }
 
     public void Emit(User from, String msg) throws SQLException, InvalidMessageException, JsonProcessingException, InvalidOperationException {
-        if(from == null || User.CanSend(from.id, this.id) == false){
+        if(from == null){
             throw new InvalidOperationException();
         }
         DTOMessage message = new DTOMessage(server, this, from, msg);
@@ -36,7 +36,7 @@ public class Room {
         DTOResponse response = new DTOResponse(ResponseType.NEW_MESSAGE, message);
         synchronized (activeUsers){
             for(User user : activeUsers){
-                user.connection.send(response.toJSON());
+                user.GetConnection().send(response.toJSON());
             }
         }
     }

@@ -1,4 +1,4 @@
-package at.schaefer.david.DTO;
+package at.schaefer.david.Communication.DTO;
 import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.General.Global;
 import at.schaefer.david.General.Room;
@@ -8,40 +8,37 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
-import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedHashMap;
 
 public class DTOMessage {
-    public String serverId;
-    public String roomId;
-    public String userId;
+    public long serverId;
+    public long roomId;
+    private String userId;
+    public String username;
     public String msg;
     public String sendedAt;
+
     protected static final ObjectWriter OW = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
-    public DTOMessage(long iServerId, long iRoomId, long iUserId, String iMsg) throws InvalidMessageException {
-        if(Global.CheckString(iMsg) == false){
-            throw new InvalidMessageException();
-        }
-        serverId = Long.toString(iServerId);
-        roomId = Long.toString(iRoomId);
-        userId = Long.toString(iUserId);
-        msg = iMsg;
-        sendedAt = Global.GetDateTime();
+    public DTOMessage(){
+
     }
 
     public DTOMessage(Server server, Room room, User user, String iMsg) throws InvalidMessageException {
         if(Global.CheckString(iMsg) == false){
             throw new InvalidMessageException();
         }
-        serverId = Long.toString(server.id);
-        roomId = Long.toString(room.id);
+        serverId = server.id;
+        roomId = room.id;
         if(user == null){
-            userId = "null";
+            userId = "NULL";
+            username = "SERVER MESSAGE";
         }
         else{
-            userId = Long.toString(user.id);
+            userId = Long.toString(user.GetId());
+            username = user.name;
         }
         msg = iMsg;
         sendedAt = Global.GetDateTime();
@@ -55,5 +52,20 @@ public class DTOMessage {
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("INSERT INTO messages (`room_id`, `user_id`, `sendedat`, `msg`) VALUES ('" + roomId + "', '" + userId + "', '" + sendedAt + "', '" + msg + "');");
         statement.close();
+    }
+
+    public static DTOMessage GetDTOMessage(LinkedHashMap map) throws InvalidMessageException {
+        DTOMessage erg = new DTOMessage();
+        erg.serverId = (long) map.get("serverId");
+        erg.userId = (String) map.get("userId");
+        erg.roomId = (long) map.get("roomId");
+        erg.username = (String) map.get("username");
+        erg.msg = (String) map.get("msg");
+        erg.sendedAt = (String) map.get("sendetat");
+
+        if(Global.CheckString(erg.msg) == false){
+            throw new InvalidMessageException();
+        }
+        return erg;
     }
 }

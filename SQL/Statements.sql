@@ -27,6 +27,10 @@
 	Select server_id FROM server_user WHERE user_id = '{userId}';
 #room_role
 	SELECT room_id, role_id FROM room_role WHERE room_id in ('{room_id}') AND role_id in ('role_id') ORDER BY room_id, role_id;
+#username
+	SELECT name FROM user WHERE id = '{user_id}';
+#notification Room
+	SELECT notificationroom FROM server WHERE '{server_id}' AND notificationroom IS NOT NULL;
 
 #----------------------------------DELETE----------------------------------
 #Remove user from Server
