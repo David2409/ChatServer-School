@@ -16,7 +16,7 @@ public class Global {
     public static Connection conDatabase;
     public static Settings settings;
 
-    protected static final DateFormat DATEFORMAT = new SimpleDateFormat("YYYY-MM-DD hh:mm:ss");
+    protected static final DateFormat DATEFORMAT = new SimpleDateFormat("YYYY-MM-dd hh:mm:ss");
 
     public static void init() throws IOException, SQLException {
         settings = Settings.GetSettings();

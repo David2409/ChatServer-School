@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Server } from '../server';
-import { Room } from '../room';
+import { Room, NullRoom } from '../room';
 
 @Component({
   selector: 'app-part-roomselection',
@@ -13,7 +13,7 @@ export class AppPartRoomselectionComponent implements OnInit {
 
   @Input() server : Server;
   @Output() selectedRoomOut : EventEmitter<Room> = new EventEmitter<Room>();
-  selectedRoom : Room;
+  @Input() selectedRoom : Room;
 
   Emit(out: Room){
     this.selectedRoomOut.emit(out);
@@ -21,6 +21,6 @@ export class AppPartRoomselectionComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.selectedRoom = { id: "null", name: "", messages: [], newMessages: []};
+    this.selectedRoom = NullRoom; 
   }
 }

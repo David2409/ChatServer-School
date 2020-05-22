@@ -17,10 +17,16 @@
 #----------------------------------SELECT----------------------------------
 #priveleges to send
 	SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '{room_id}' AND ur.user_id = '{user_id}') GROUP BY rr.room_id HAVING SUM(rr.canwrite) = '0';
+#priveleges to read
+	SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '{room_id}' AND ur.user_id = '{user_id}') GROUP BY rr.room_id HAVING SUM(rr.canread) = '0';
+#priveleges to modivy
+	SELECT FALSE FROM user_role ur JOIN role r ON(ur.role_id = r.id AND r.server_id = '{server_id}' AND ur.user_id = '{user_id}') HAVING SUM(r.canchange) = '0';
+#privelegs to see
+	SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '{room_id}' AND ur.user_id = '{user_id}') GROUP BY rr.room_id HAVING SUM(rr.cansee) = '0';
 #Load ChatRoom/Server Settings
 	SELECT id FROM room WHERE server_id = 'server_id' ORDER BY id;
 #Get Rooms for a user in which he is not
-	SELECT DISTINCT rr.room_id FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) JOIN role r ON (rr.role_id = r.id) WHERE ur.user_id = '{user_id}' AND r.server_id = '{server_id}' GROUP BY rr.room_id HAVING SUM(rr.cansee) = '0' ORDER BY r.id;
+	SELECT DISTINCT rr.room_id FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) JOIN role r ON (rr.role_id = r.id) WHERE ur.user_id = '{user_id}' AND r.server_id = '{server_id}' GROUP BY rr.room_id HAVING SUM(rr.canread) = '0' ORDER BY r.id;
 #User
 	Select id FROM user WHERE name = '{username}' AND password = '{hashedPassword}';
 #Get Servers from User
@@ -31,6 +37,18 @@
 	SELECT name FROM user WHERE id = '{user_id}';
 #notification Room
 	SELECT notificationroom FROM server WHERE '{server_id}' AND notificationroom IS NOT NULL;
+#Servername
+	SELECT name FROM server WHERE id = '{server_id}';
+#room name
+	SELECT name FROM room WHERE id = '{room_id}';
+#messages in room
+	SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = '{room_id}' ORDER BY m.sendedat DESC;
+	#before
+		SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = '{room_id}' AND m.sendedat < '{date}' ORDER BY m.sendedat DESC;
+	#after
+		SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = '{room_id}' AND m.sendedat > '{date}' ORDER BY m.sendedat DESC;
+#get user expect
+SELECT u.id, u.name FROM server_user su JOIN user u ON(u.id = su.user_id) WHERE su.server_id = '{user_id}' AND u.id NOT IN {expect_user_id};
 
 #----------------------------------DELETE----------------------------------
 #Remove user from Server
@@ -45,3 +63,5 @@
 #----------------------------------UPDATE----------------------------------
 #Privileges
 	UPDATE room_role SET cansee = '{valueCanSee}' AND canwrite = '{valueCanWrite}' AND canread = '{valueCanRead}' WHERE role_id = '{role_id}' AND room_id = '{room_id}';
+#lastlogout
+	UPDATE user SET lastlogout = NOW() WHERE id = '{user_id}';

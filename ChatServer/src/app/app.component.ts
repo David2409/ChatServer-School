@@ -1,7 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Server } from './server';
-import { Event } from './event';
-import { EventType } from './event-type.enum';
+import { ResponseType } from './response-type.enum';
+import { User } from './user';
+import { Response } from './response';
+import { WebsocketService } from './websocket-service.service';
+import { Subject, throwError } from 'rxjs';
+import * as mes from './message';
+import { map, filter, catchError, mergeMap } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-root',
@@ -12,43 +18,96 @@ export class AppComponent {
   title = 'ChatServer';
 
   servers: Server[];
-  socket: WebSocket = new WebSocket("ws:localhost:4444");
+  user: User;
+  loggedIn: boolean = false;
+
+  webSocket: WebsocketService;
+
+  GetServer(serverId){
+    for(let i = 0; i < this.servers.length; i++){
+      if(this.servers[i].id == serverId){
+        return this.servers[i];
+      }
+    }
+    return null;
+  }
+
+  GetRoom(server: Server, roomId){
+    for(let i = 0; i < server.rooms.length; i++){
+      if(server.rooms[i].id == roomId){
+        return server.rooms[i];
+      }
+    }
+    return null;
+  }
+
+  ExecuteEvent(event){
+    console.log(event);
+    this.webSocket.subject.next(event);
+  }
 
 
-  ExecuteEvent(event: Event){
-    switch(event.type){
-      case EventType.SEND_MESSAGE:
-        
+  AddMessage(message: mes.Message){
+    console.log("Add Message");
+    let server = this.GetServer(message.serverId);
+    console.log(server)
+    if(server != null){
+      console.log("Got Server")
+      let room = this.GetRoom(server, message.roomId);
+      if(room != null){
+        console.log("Got Room");
+        room.newMessages.push(message);
+        console.log("Added Messages");
+      }
+    }
+  }
+
+  LogIn(user){
+    this.user = user;
+    this.loggedIn = true;
+  }
+
+  LogOut(){
+    this.user = null;
+    this.loggedIn = false;
+  }
+
+  ExecuteResponse(data){
+    console.log("Execute");
+    console.log(data);
+    let temp = JSON.parse(data);
+    temp.type = ResponseType[temp.type];
+    let r: Response = temp;
+    switch(r.type){
+      case ResponseType.LOGGED_IN:
+        this.LogIn(r.obj);
+        break;
+      case ResponseType.NEW_MESSAGE:
+        this.AddMessage(r.obj as mes.Message);
+        break;
+      case ResponseType.SERVER_MAP:
+        this.servers = r.obj;
         break;
     }
   }
 
   constructor() {
-    this.socket = new WebSocket("ws:localhost:4444");
-    this.socket.onopen = function(event) {
-      console.log("Connected to Server");
-    };
+    this.user = null;
 
-    this.socket.onmessage = function(event) {
-      console.log(event.data);
-      this.send(event.data);
-    }
+    this.webSocket = new WebsocketService();
+    this.webSocket.connect("ws:localhost:4444");
+
+    //this.socket.onmessage = this.ExecuteResponse;
     
-    this.socket.onerror = function(error){
-      console.log(error);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
+    this.webSocket.subject.pipe(
+      map( (data: MessageEvent) => {
+          return data.data;
+        }, catchError(error => {
+          return throwError('Something went wrong!');
+        }))).subscribe((data: any) => {
+          this.ExecuteResponse(data);
+        });
+    
 
 
 

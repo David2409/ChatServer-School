@@ -17,7 +17,7 @@ export class AppPartMessageInputComponent implements OnInit {
   }
 
   Send(){
-    let message = document.getElementById("messageInput").nodeValue;
+    let message = (<HTMLInputElement>document.getElementById("messageInput")).value;
     let generatedEvent: Event = {type: EventType.SEND_MESSAGE, obj: { msg: message}};
     this.eventChannel.emit(generatedEvent);
   }

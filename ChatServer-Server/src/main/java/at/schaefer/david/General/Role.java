@@ -32,7 +32,7 @@ public class Role {
         boolean hasInsertValues = false;
         for(int i = 0; i < args.length; i++){
             String[] input = args[i].split(",");
-            if(Has(rsIds, new long[]{Long.getLong(input[0]), Long.getLong(input[1])})){
+            if(Has(rsIds, new long[]{Long.getLong(input[0], 10), Long.getLong(input[1], 10)})){
                 sqlStatUpdate += "UPDATE room_role SET cansee = '" + input[2] + "' AND canwrite = '" + input[3] + "' AND canread = '" + input[4] + "' WHERE role_id = '" + input[0] + "' AND room_id = '" + input[1] + "';";
             }
             else{
@@ -64,9 +64,10 @@ public class Role {
     private static long[][] GetLongArray(String[] array) {
         long[][] erg = new long[array.length][];
         for(int i = 0; i < erg.length; i++){
+            String[] split = array[i].split(",");
             erg[i] = new long[2];
-            erg[i][0] = Long.getLong(array[0]);
-            erg[i][1] = Long.getLong(array[1]);
+            erg[i][0] = Long.getLong(split[0], 10);
+            erg[i][1] = Long.getLong(split[1], 10);
         }
         return erg;
     }

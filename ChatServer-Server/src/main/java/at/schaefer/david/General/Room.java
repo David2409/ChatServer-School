@@ -5,6 +5,7 @@ import at.schaefer.david.Communication.Responses.DTOResponse;
 import at.schaefer.david.Communication.Responses.ResponseType;
 import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
+import at.schaefer.david.Exceptions.InvalidUserException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -14,6 +15,7 @@ import java.util.List;
 
 public class Room {
     public long id;
+    public String name;
     public List<User> activeUsers;
     private Server server;
 
@@ -23,8 +25,20 @@ public class Room {
         activeUsers = new ArrayList<User>();
     }
 
-    public static Room Get(long id, Server server) throws SQLException {
-        return new Room(id, server);
+    private void init() throws SQLException, InvalidOperationException {
+        Statement statement = Global.conDatabase.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT name FROM room WHERE id = '" + id + "';");
+        if(rs.next()){
+            name = rs.getString(1);
+        }else{
+            throw new InvalidOperationException();
+        }
+    }
+
+    public static Room Get(long id, Server server) throws SQLException, InvalidOperationException {
+        Room room = new Room(id, server);
+        room.init();
+        return room;
     }
 
     public void Emit(User from, String msg) throws SQLException, InvalidMessageException, JsonProcessingException, InvalidOperationException {
@@ -68,5 +82,21 @@ public class Room {
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("DELETE FROM room WHERE id = '" + this.id + "';");
         statement.close();
+    }
+
+    public DTOMessage[] GetMessagesBefore(String time) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = '" + this.id + "' AND m.sendedat < '" + time + "' ORDER BY m.sendedat DESC LIMIT 100;");
+        DTOMessage[] erg = DTOMessage.GetArray(rs);
+        statement.close();
+        return erg;
+    }
+
+    public DTOMessage[] GetMessagesAfter(String time) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = '" + this.id + "' AND m.sendedat > '" + time + "' ORDER BY m.sendedat DESC");
+        DTOMessage[] erg = DTOMessage.GetArray(rs);
+        statement.close();
+        return erg;
     }
 }

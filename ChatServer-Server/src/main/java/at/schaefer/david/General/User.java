@@ -1,9 +1,13 @@
 package at.schaefer.david.General;
 
+import at.schaefer.david.Communication.Requests.DTORequest;
+import at.schaefer.david.Communication.Responses.DTOResponse;
+import at.schaefer.david.Communication.Responses.ResponseType;
 import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
 import at.schaefer.david.Exceptions.InvalidUserException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import org.java_websocket.WebSocket;
 import sun.security.action.GetLongAction;
 
@@ -18,15 +22,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class User {
-    private Server[] servers;
+    public Server[] servers;
     private WebSocket connection;
     public String name;
-    private long id;
+    public String lastLogout;
+    public long id;
 
-    protected User(WebSocket iConnection, long iId, String iName) throws SQLException {
+    protected User(WebSocket iConnection, long iId, String iName, String iLastLogout) throws SQLException, InvalidOperationException {
         connection = iConnection;
         id = iId;
         name = iName;
+        lastLogout = iLastLogout;
         Statement statement = Global.conDatabase.createStatement();
         ResultSet rs = statement.executeQuery("Select server_id FROM server_user WHERE user_id = '" + id + "';");
         rs.last();
@@ -39,32 +45,37 @@ public class User {
         }
     }
 
-    public static User GetUser(WebSocket connection, String username, String password) throws SQLException, InvalidUserException, NoSuchAlgorithmException, UnsupportedEncodingException {
+    public static User GetUser(WebSocket connection, String username, String password) throws SQLException, InvalidUserException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidOperationException {
         Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT id FROM user WHERE name = '" + username + "' AND password = '" + Global.HashPassword(password) + "';");
+        ResultSet rs = statement.executeQuery("SELECT id, lastlogout FROM user WHERE name = '" + username + "' AND password = '" + Global.HashPassword(password) + "';");
         boolean result = rs.next();
         long id = 0;
+        String lastlogout = "";
         if(result){
             id = rs.getLong(1);
+            lastlogout = rs.getString(2);
         }
         statement.close();
         if(result){
-            return new User(connection, id, username);
+            return new User(connection, id, username, lastlogout);
         }
         throw new InvalidUserException();
     }
 
-    public static User CreateUser(WebSocket connection, String username, String password) throws NoSuchAlgorithmException, SQLException, InvalidUserException, UnsupportedEncodingException {
+    public static User CreateUser(WebSocket connection, String username, String password) throws NoSuchAlgorithmException, SQLException, InvalidUserException, UnsupportedEncodingException, InvalidOperationException {
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("INSERT INTO user (`name`,`password`) VALUES ('" + username + "','" + Global.HashPassword(password) + "');");
         statement.close();
         return GetUser(connection, username, password);
     }
 
-    public void LogOut(){
+    public void LogOut() throws SQLException {
         for (Server server: servers) {
             server.RemoveFromSession(this);
         }
+        Statement statement = Global.conDatabase.createStatement();
+        statement.execute("UPDATE user SET lastlogout = NOW() WHERE id = '" + this.id + "';");
+        statement.close();
     }
 
     public void DeleteUser() throws SQLException {
@@ -76,11 +87,11 @@ public class User {
         statement.close();
     }
 
-    public boolean CanModify(long userId, long serverId) throws SQLException { //do to
+    public boolean CanModify(long serverId) throws SQLException { //do to
         Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT COUNT(*) FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) WHERE ur.user_id = '" + this.id + "' AND rr.room_id = '" + serverId + "' AND rr.canwrite = TRUE;");
+        ResultSet rs = statement.executeQuery("SELECT FALSE FROM user_role ur JOIN role r ON(ur.role_id = r.id AND r.server_id = '" + serverId + "' AND ur.user_id = '" + this.id + "') HAVING SUM(r.canchange) = '0';");
         rs.next();
-        boolean can = rs.getInt(1) != 0;
+        boolean can = !rs.next();
         statement.close();
         return can;
     }
@@ -93,8 +104,20 @@ public class User {
         return can;
     }
 
-    public long GetId(){
-        return id;
+    public boolean CanRead(long roomId) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '" + roomId + "' AND ur.user_id = '" + this.id + "') GROUP BY rr.room_id HAVING SUM(rr.canread) = '0';");
+        boolean can = !rs.next();
+        statement.close();
+        return can;
+    }
+
+    public boolean CanSee(long roomId) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '" + roomId + "' AND ur.user_id = '" + this.id + "') GROUP BY rr.room_id HAVING SUM(rr.cansee) = '0';");
+        boolean can = !rs.next();
+        statement.close();
+        return can;
     }
 
     public WebSocket GetConnection(){
@@ -128,15 +151,20 @@ public class User {
         return null;
     }
 
-    public static void main(String[] args) throws SQLException, IOException, NoSuchAlgorithmException, InvalidUserException {
+    public static void main(String[] args) throws SQLException, IOException, NoSuchAlgorithmException, InvalidUserException, InvalidOperationException {
         Global.init();
         System.out.println(Global.HashPassword("Hallo").length());
         User user = User.CreateUser(null, "testuser", "test");
         Server server = Server.CreateServer("TestServer");
+        System.out.println(user.id);
+        System.out.println(server.id);
         server.AddUser(user.id);
         long roleId = Role.Create("TestRole", server.id);
         long roomId = Room.Create(server.id, "Test Room");
-        Role.Change(server.id, new String[] {roleId + "," + roomId + ",TRUE,TRUE,TRUE"});
+        Role.Change(server.id, new String[] {roleId + "," + roomId + ",1,1,1"});
         server.JoinSession(user);
+        DTOResponse response = new DTOResponse(ResponseType.SERVER_MAP, user.servers);
+        System.out.println(response.toJSON());
+        System.out.println("Finished");
     }
 }

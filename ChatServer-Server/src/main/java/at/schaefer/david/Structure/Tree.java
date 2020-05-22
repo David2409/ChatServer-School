@@ -1,5 +1,6 @@
 package at.schaefer.david.Structure;
 
+import at.schaefer.david.Exceptions.InvalidOperationException;
 import at.schaefer.david.General.Server;
 
 import java.sql.SQLException;
@@ -9,7 +10,7 @@ public class Tree extends Node {
         super(null, 0, depth-1);
     }
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws SQLException, InvalidOperationException {
         Tree t = new Tree(8);
         t.Add(Server.GetServer(100l));
     }

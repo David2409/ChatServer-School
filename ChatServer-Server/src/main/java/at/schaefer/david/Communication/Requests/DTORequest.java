@@ -27,7 +27,9 @@ public class DTORequest<T> {
     private static Object GetObj(RequestType type, LinkedHashMap map) throws InvalidMessageException {
         switch (type){
             case LOGIN:
-                return DTOUser.GetDTOLogin(map);
+                return DTOUser.GetDTOUser(map);
+            case CREATE_USER:
+                return DTOUser.GetDTOUser(map);
             case SEND_MESSAGE:
                 return DTOMessage.GetDTOMessage(map);
             default:

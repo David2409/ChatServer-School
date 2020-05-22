@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, HostListener, EventEmitter, Output  } from '@angular/core';
-import { Server } from '../server';
+import { Server, NullServer } from '../server';
 
 
 @Component({
@@ -21,6 +21,6 @@ export class AppPartServerselectionComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.selectedServer = {id : "null", name: "null", rooms: [], offlineUser: [], onlineUser: []};
+    this.selectedServer = NullServer;
   }
 }

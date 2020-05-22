@@ -1,5 +1,6 @@
 <!--ng generate component xyz-->
 <!--app-part-login></app-part-login-->
-<div class="mainContainer" style="background-color: grey;">
+<div *ngIf="this.loggedIn == true" class="mainContainer" style="/*background-color: grey;*/">
     <app-part-main (eventChannel)="this.ExecuteEvent($event)" [servers]="servers"></app-part-main>
 </div>
+<app-part-login (eventChannel)="this.ExecuteEvent($event)" *ngIf="this.loggedIn == false"></app-part-login>

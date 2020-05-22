@@ -4,6 +4,7 @@ import at.schaefer.david.Communication.Responses.DTOResponse;
 import at.schaefer.david.Communication.Responses.ResponseType;
 import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
+import at.schaefer.david.Exceptions.InvalidUserException;
 import at.schaefer.david.Structure.IIndex;
 import at.schaefer.david.Structure.Tree;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,10 +19,11 @@ import java.util.List;
 
 public class Server implements IIndex {
     public long id;
+    public String name;
     public Room[] rooms;
     private boolean init;
     protected static Tree servers  = new Tree(8);
-    protected List<User> onlineUsers;
+    public List<User> onlineUsers;
     protected long notificationRoomId;
 
     protected Server(long iId)
@@ -30,7 +32,7 @@ public class Server implements IIndex {
         onlineUsers = new ArrayList<User>(1);
     }
 
-    public static Server GetServer(long id) throws SQLException {
+    public static Server GetServer(long id) throws SQLException, InvalidOperationException {
         Server server = (Server) servers.Add(new Server(id));
         synchronized (server){
             if(server.init == false){
@@ -40,7 +42,7 @@ public class Server implements IIndex {
         return server;
     }
 
-    public static Server CreateServer(String name) throws SQLException {
+    public static Server CreateServer(String name) throws SQLException, InvalidOperationException {
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("INSERT INTO server (`name`) VALUES ('" + name + "');", Statement.RETURN_GENERATED_KEYS);
         ResultSet rs = statement.getGeneratedKeys();
@@ -50,7 +52,7 @@ public class Server implements IIndex {
         return GetServer(id);
     }
 
-    protected void init() throws SQLException {
+    protected void init() throws SQLException, InvalidOperationException {
         Statement statement = Global.conDatabase.createStatement();
         ResultSet rsRooms = statement.executeQuery("SELECT id FROM room WHERE server_id = '" + id + "' ORDER BY id;");
         rsRooms.last();
@@ -65,15 +67,23 @@ public class Server implements IIndex {
             notificationRoomId = rs.getLong(1);
         }
         else{
-            notificationRoomId = rooms[0].id;
+            if(rooms.length != 0){
+                notificationRoomId = rooms[0].id;
+            }
+            else{
+                notificationRoomId = 0;
+            }
         }
+        rs = statement.executeQuery("SELECT name FROM server WHERE id = '" + id + "';");
+        rs.next();
+        name = rs.getString(1);
         statement.close();
         init = true;
     }
 
     public void JoinSession(User user) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
-        ResultSet rsRooms = statement.executeQuery("SELECT DISTINCT r.id FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) JOIN role r ON (rr.room_id = r.id) WHERE ur.user_id = '" + user.GetId() + "' AND r.server_id = '" + this.id + "' GROUP BY rr.room_id HAVING SUM(rr.cansee) = '0' ORDER BY r.id;");
+        ResultSet rsRooms = statement.executeQuery("SELECT DISTINCT r.id FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) JOIN role r ON (rr.room_id = r.id) WHERE ur.user_id = '" + user.id + "' AND r.server_id = '" + this.id + "' GROUP BY rr.room_id HAVING SUM(rr.canread) = '0' ORDER BY r.id;");
         synchronized (onlineUsers){
             onlineUsers.add(user);
         }
@@ -95,7 +105,7 @@ public class Server implements IIndex {
     public void AddUser(long userId) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("INSERT INTO server_user (`server_id`,`user_id`) VALUES ('" + this.id + "','" + userId + "');");
-        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '{user_id}';");
+        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '" + userId + "';");
         rs.next();
         String username = rs.getString(1);
         statement.close();
@@ -112,7 +122,7 @@ public class Server implements IIndex {
         EmitServerMessage("User '" + username + "' has left the Server");
     }
 
-    public void CreateRoom(String name) throws SQLException {
+    public void CreateRoom(String name) throws SQLException, InvalidOperationException {
         long roomId = Room.Create(this.id, name);
         Room room = Room.Get(roomId, this);
         PutRoom(room);
@@ -203,7 +213,7 @@ public class Server implements IIndex {
     protected void AddToRooms(User user, long[] except){
         int blocked = 0;
         for(int i = 0; i < rooms.length; i++){
-            if(rooms[i].id != except[blocked]){
+            if(except.length == 0 || rooms[i].id != except[blocked]){
                 rooms[i].Add(user);
             }
             else{

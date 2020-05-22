@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import * as io from 'socket.io-client';
+import { Component, OnInit, EventEmitter, Output } from '@angular/core';
+import { Event } from '../event';
+import { EventType } from '../event-type.enum';
+import { User } from '../user';
 
 @Component({
   selector: 'app-part-login',
@@ -8,26 +10,28 @@ import * as io from 'socket.io-client';
 })
 export class AppPartLoginComponent implements OnInit {
 
-  //private socket;
+  @Output() eventChannel: EventEmitter<Event> = new EventEmitter<Event>();
 
-  constructor() {/*
-    //var io = require("socket.io-client");
-    //var socket = io.connect("ws://localhost:4444", { path: "/"});
-    var socket = new WebSocket("ws:localhost:4444");
-    socket.onopen = function(event) {
-      console.log("Connected to Server")
-      console.log("\t" + event);
-      socket.send("Hallo");
-    };
+  EmitEvent(event: Event){
+    this.eventChannel.emit(event);
+  }
 
-    socket.onmessage = function(event) {
-      console.log(event.data);
-      socket.send(event.data);
-    }
-    
-    socket.onerror = function(error){
-      console.log(error);
-    }*/
+  Login(){
+    let user: User = {  username: (<HTMLInputElement> document.getElementById("inputUsername")).value, 
+                        password: (<HTMLInputElement> document.getElementById("inputPassword")).value };
+    let event: Event = { type: EventType.LOGIN, obj: user };
+    this.eventChannel.emit(event);
+  }
+
+  SignUp(){
+    let user: User = {  username: (<HTMLInputElement> document.getElementById("inputUsername")).value, 
+                        password: (<HTMLInputElement> document.getElementById("inputPassword")).value };
+    let event: Event = { type: EventType.CREATE_USER, obj: user };
+    this.eventChannel.emit(event);
+  }
+
+  constructor() {
+
   }
 
   ngOnInit() {

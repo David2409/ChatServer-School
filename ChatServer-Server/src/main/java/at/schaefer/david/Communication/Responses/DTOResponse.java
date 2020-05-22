@@ -7,13 +7,13 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 public class DTOResponse<T> {
 
     public ResponseType type;
-    public T data;
+    public T obj;
 
     protected static final ObjectWriter OW = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     public DTOResponse(ResponseType iType, T iData){
         type = iType;
-        data = iData;
+        obj = iData;
     }
 
     public String toJSON() throws JsonProcessingException {
