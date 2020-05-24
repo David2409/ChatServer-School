@@ -1,5 +1,5 @@
 <div class="row w100 m0 mainContainer">
-    <app-part-serverselection class="col-2 p0" [servers]="servers" (selectedServerOut)="SetServer($event)"></app-part-serverselection>
-    <app-part-roomselection class="col-2 p0" [server]="selectedServer" [selectedRoom]="selectedRoom" (selectedRoomOut)="SetRoom($event)"></app-part-roomselection>
+    <app-part-serverselection class="col-2 p0" [servers]="servers" (selectedServerOut)="SetServer($event)" (eventChannel)="EventChannel($event)"></app-part-serverselection>
+    <app-part-roomselection class="col-2 p0" [server]="selectedServer" [selectedRoom]="selectedRoom" (selectedRoomOut)="SetRoom($event)" (eventChannel)="EventChannel($event)"></app-part-roomselection>
     <app-part-message-main class="col-8 p0" [room]="selectedRoom" (eventChannel)="EventChannel($event)"></app-part-message-main>
 </div>

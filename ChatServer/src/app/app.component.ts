@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Server } from './server';
 import { ResponseType } from './response-type.enum';
 import { User } from './user';
 import { Response } from './response';
 import { WebsocketService } from './websocket-service.service';
-import { Subject, throwError } from 'rxjs';
+import { throwError } from 'rxjs';
 import * as mes from './message';
-import { map, filter, catchError, mergeMap } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
+import { MatDialog } from '@angular/material/dialog';
+import { AppPartDialogCreateServerComponent } from './app-part-dialog-create-server/app-part-dialog-create-server.component';
 
 
 @Component({
@@ -19,7 +21,7 @@ export class AppComponent {
 
   servers: Server[];
   user: User;
-  loggedIn: boolean = false;
+  loggedIn: boolean = true;
 
   webSocket: WebsocketService;
 
@@ -91,7 +93,7 @@ export class AppComponent {
     }
   }
 
-  constructor() {
+  constructor(dialog: MatDialog) {
     this.user = null;
 
     this.webSocket = new WebsocketService();
@@ -108,7 +110,7 @@ export class AppComponent {
           this.ExecuteResponse(data);
         });
     
-
+    dialog.open(AppPartDialogCreateServerComponent);
 
 
 

@@ -15,6 +15,8 @@ export class AppPartRoomselectionComponent implements OnInit {
   @Output() selectedRoomOut : EventEmitter<Room> = new EventEmitter<Room>();
   @Input() selectedRoom : Room;
 
+  @Output() eventChannel : EventEmitter<Event> = new EventEmitter<Event>();
+
   Emit(out: Room){
     this.selectedRoomOut.emit(out);
     this.selectedRoom = out;

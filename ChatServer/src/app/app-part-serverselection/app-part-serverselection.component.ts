@@ -1,6 +1,7 @@
-import { Component, OnInit, Input, HostListener, EventEmitter, Output  } from '@angular/core';
+import { Component, OnInit, Input, HostListener, EventEmitter, Output, NgModule  } from '@angular/core';
 import { Server, NullServer } from '../server';
-
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AppPartDialogCreateServerComponent } from '../app-part-dialog-create-server/app-part-dialog-create-server.component';
 
 @Component({
   selector: 'app-part-serverselection',
@@ -9,15 +10,21 @@ import { Server, NullServer } from '../server';
 })
 export class AppPartServerselectionComponent implements OnInit {
 
-  constructor() { }
+  constructor(public dialog: MatDialog) { }
 
   @Input() servers : Server[];
   @Output() selectedServerOut : EventEmitter<Server> = new EventEmitter<Server>();
   selectedServer : Server;
 
+  @Output() eventChannel : EventEmitter<Event> = new EventEmitter<Event>();
+
   Emit(out: Server){
     this.selectedServerOut.emit(out);
     this.selectedServer = out;
+  }
+
+  CreateServer(){
+    
   }
 
   ngOnInit() {

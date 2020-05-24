@@ -12,6 +12,13 @@ import { AppPartMessageComponent } from './app-part-message/app-part-message.com
 import { AppPartMessageListComponent } from './app-part-message-list/app-part-message-list.component';
 import { AppPartMessageInputComponent } from './app-part-message-input/app-part-message-input.component';
 import { AppPartMessageMainComponent } from './app-part-message-main/app-part-message-main.component';
+import { AppPartDialogCreateServerComponent } from './app-part-dialog-create-server/app-part-dialog-create-server.component';
+import { AppPartDialogCreateRoomComponent } from './app-part-dialog-create-room/app-part-dialog-create-room.component';
+import { AppPartDialogInviteComponent } from './app-part-dialog-invite/app-part-dialog-invite.component';
+import { AppPartDialogModifyServerComponent } from './app-part-dialog-modify-server/app-part-dialog-modify-server.component';
+import { AppPartDialogModifyRoomComponent } from './app-part-dialog-modify-room/app-part-dialog-modify-room.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -25,10 +32,20 @@ import { AppPartMessageMainComponent } from './app-part-message-main/app-part-me
     AppPartMessageComponent,
     AppPartMessageListComponent,
     AppPartMessageInputComponent,
-    AppPartMessageMainComponent
+    AppPartMessageMainComponent,
+    AppPartDialogCreateServerComponent,
+    AppPartDialogCreateRoomComponent,
+    AppPartDialogInviteComponent,
+    AppPartDialogModifyServerComponent,
+    AppPartDialogModifyRoomComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    MatDialogModule,
+    BrowserAnimationsModule
+  ],
+  entryComponents: [
+    AppPartDialogCreateServerComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

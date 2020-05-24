@@ -1,3 +1,8 @@
-<div id="serverSelectContainer">
-    <app-part-serverselection-item *ngFor="let s of servers" [server]="s" [selected]="selectedServer" (outServer)="Emit($event)"> </app-part-serverselection-item>
+<div>
+    <div id="serverSelectContainer">
+        <app-part-serverselection-item *ngFor="let s of servers" [server]="s" [selected]="selectedServer" (outServer)="Emit($event)"> </app-part-serverselection-item>
+        <div class="w100">
+            <button class="btn btn-secondary my-2 cS w100" (click)="CreateServer()">Create Server</button>
+        </div>
+    </div>
 </div>
