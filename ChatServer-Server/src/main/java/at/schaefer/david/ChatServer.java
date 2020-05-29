@@ -1,6 +1,7 @@
 package at.schaefer.david;
 
 import at.schaefer.david.Communication.DTO.DTOMessage;
+import at.schaefer.david.Communication.DTO.DTORoom;
 import at.schaefer.david.Communication.DTO.DTOServer;
 import at.schaefer.david.Communication.DTO.DTOUser;
 import at.schaefer.david.Communication.Requests.DTORequest;
@@ -10,6 +11,8 @@ import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
 import at.schaefer.david.Exceptions.InvalidUserException;
 import at.schaefer.david.General.Global;
+import at.schaefer.david.General.Room;
+import at.schaefer.david.General.Server;
 import at.schaefer.david.General.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.java_websocket.WebSocket;
@@ -153,6 +156,25 @@ public class ChatServer extends WebSocketServer {
                     user.SendMessage(message.serverId, message.roomId, message.msg);
                 }
                 break;
+
+            case CREATE_SERVER:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTOServer dtoserver = (DTOServer) request.obj;
+                Server s = Server.CreateServer(dtoserver.name);
+                s.AddUser(user.id);
+                s.JoinSession(user);
+                conn.send(new DTOResponse<DTOServer>(ResponseType.NEW_SERVER, DTOServer.GetDTOServer(s, user)).toJSON());
+                break;
+
+            case CREATE_ROOM:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTORoom dtoRoom = (DTORoom) request.obj;
+                Server server =user.GetServer(Long.valueOf(dtoRoom.serverId));
+                server.CreateRoom(dtoRoom.name);
         }
     }
 }

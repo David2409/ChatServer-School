@@ -5,6 +5,7 @@ import at.schaefer.david.General.Server;
 import at.schaefer.david.General.User;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class DTOServer {
@@ -28,7 +29,7 @@ public class DTOServer {
         } catch (Exception e){ e.printStackTrace(); }
         Room[] temp2 = new Room[temp.size()];
         temp.toArray(temp2);
-        dtoServer.rooms = DTORoom.GetDTORooms(temp2, u);
+        dtoServer.rooms = DTORoom.GetDTORooms(temp2, u, Long.toString(server.id));
         User[] online;
         synchronized (server.onlineUsers){
             online = new User[server.onlineUsers.size()];
@@ -45,5 +46,11 @@ public class DTOServer {
             erg[i] = GetDTOServer(servers[i], u);
         }
         return erg;
+    }
+
+    public static DTOServer GetDTOServer(LinkedHashMap linkedHashMap){
+        DTOServer dtoServer = new DTOServer();
+        dtoServer.name = (String) linkedHashMap.get("name");
+        return dtoServer;
     }
 }

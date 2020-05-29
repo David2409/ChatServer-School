@@ -1,5 +1,5 @@
 import { Component, OnInit, EventEmitter, Output, Input } from '@angular/core';
-import { Server } from '../server';
+import { Server, NullServer } from '../server';
 import { Room, NullRoom } from '../room';
 import { Event } from '../event';
 import { EventType } from '../event-type.enum';
@@ -20,7 +20,8 @@ export class AppPartMainComponent implements OnInit {
   
 
   ngOnInit() {
-    
+    this.selectedServer = NullServer;
+    this.selectedRoom = NullRoom;
   }
 
   SetServer(s: Server){

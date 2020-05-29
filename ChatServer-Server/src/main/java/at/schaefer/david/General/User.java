@@ -132,7 +132,12 @@ public class User {
         server.Emit(this, RoomId, msg);
     }
 
-    private Server GetServer(long id){
+    public void JoinServer(Server s) throws SQLException {
+        s.AddUser(this);
+        s.JoinSession(this);
+    }
+
+    public Server GetServer(long id){
         int left = 0;
         int right = servers.length;
         int center = 0;
@@ -151,6 +156,19 @@ public class User {
         return null;
     }
 
+    /*
+    private int GetInsertionPoint(){
+        for(int i = 0; i < servers.length){
+            if(servers[i])
+        }
+    }*/
+
+    private void AddServer(Server s){
+
+        synchronized (servers){
+        }
+    }
+
     public static void main(String[] args) throws SQLException, IOException, NoSuchAlgorithmException, InvalidUserException, InvalidOperationException {
         Global.init();
         System.out.println(Global.HashPassword("Hallo").length());
@@ -158,7 +176,7 @@ public class User {
         Server server = Server.CreateServer("TestServer");
         System.out.println(user.id);
         System.out.println(server.id);
-        server.AddUser(user.id);
+        server.AddUser(user);
         long roleId = Role.Create("TestRole", server.id);
         long roomId = Room.Create(server.id, "Test Room");
         Role.Change(server.id, new String[] {roleId + "," + roomId + ",1,1,1"});

@@ -1,5 +1,8 @@
 package at.schaefer.david.General;
 
+import at.schaefer.david.Communication.DTO.DTORemove;
+import at.schaefer.david.Communication.DTO.DTORoom;
+import at.schaefer.david.Communication.DTO.DTOUser;
 import at.schaefer.david.Communication.Responses.DTOResponse;
 import at.schaefer.david.Communication.Responses.ResponseType;
 import at.schaefer.david.Exceptions.InvalidMessageException;
@@ -102,14 +105,15 @@ public class Server implements IIndex {
         }
     }
 
-    public void AddUser(long userId) throws SQLException {
+    public void AddUser(User user) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
-        statement.execute("INSERT INTO server_user (`server_id`,`user_id`) VALUES ('" + this.id + "','" + userId + "');");
-        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '" + userId + "';");
+        statement.execute("INSERT INTO server_user (`server_id`,`user_id`) VALUES ('" + this.id + "','" + user.id + "');");
+        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '" + user.id + "';");
         rs.next();
         String username = rs.getString(1);
         statement.close();
         EmitServerMessage("User '" + username + "' has join the Server");
+        Emit(new DTOResponse<DTOUser>(ResponseType.ADDED_USER, DTOUser.GetDTOUser(user)));
     }
 
     public void RemoveUser(long userId) throws SQLException {
@@ -120,6 +124,7 @@ public class Server implements IIndex {
         String username = rs.getString(1);
         statement.close();
         EmitServerMessage("User '" + username + "' has left the Server");
+        Emit(new DTOResponse<DTORemove>(ResponseType.REMOVED_USER, DTORemove.GetDTORemoveUser(Long.toString(this.id), Long.toString(userId))));
     }
 
     public void CreateRoom(String name) throws SQLException, InvalidOperationException {
@@ -129,11 +134,14 @@ public class Server implements IIndex {
         if(rooms.length == 1){
             notificationRoomId = rooms[0].id;
         }
+        Emit(new DTOResponse<DTORoom>(ResponseType.NEW_ROOM, DTORoom.GetDTORoom(room, Long.toString(this.id))));
         EmitServerMessage("A Room has been created");
     }
 
     public void DeleteRoom(long roomId) throws SQLException, InvalidOperationException {
-        rooms[GetRoomIndex(roomId)].Delete();
+        Room room = rooms[GetRoomIndex(roomId)];
+        Emit(new DTOResponse<DTORoom>(ResponseType.DELETED_Room, DTORoom.GetDTORoom(room, Long.toString(this.id))));
+        room.Delete();
         if(roomId == notificationRoomId){
             if(rooms.length != 0){
                 notificationRoomId = rooms[0].id;

@@ -18,7 +18,12 @@ import { AppPartDialogInviteComponent } from './app-part-dialog-invite/app-part-
 import { AppPartDialogModifyServerComponent } from './app-part-dialog-modify-server/app-part-dialog-modify-server.component';
 import { AppPartDialogModifyRoomComponent } from './app-part-dialog-modify-room/app-part-dialog-modify-room.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 
 @NgModule({
   declarations: [
@@ -41,13 +46,18 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
+    ReactiveFormsModule,
+    FormsModule,
     MatDialogModule,
-    BrowserAnimationsModule
+    MatFormFieldModule,
+    MatInputModule
   ],
   entryComponents: [
     AppPartDialogCreateServerComponent
   ],
-  providers: [],
-  bootstrap: [AppComponent]
+  providers: [
+  ],
+  bootstrap: [AppComponent],
 })
 export class AppModule { }

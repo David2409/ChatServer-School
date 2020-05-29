@@ -1,7 +1,9 @@
-import { Component, OnInit, Input, HostListener, EventEmitter, Output, NgModule  } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, NgZone  } from '@angular/core';
 import { Server, NullServer } from '../server';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { AppPartDialogCreateServerComponent } from '../app-part-dialog-create-server/app-part-dialog-create-server.component';
+import { MatDialog } from '@angular/material/dialog';
+import { AppPartDialogCreateServerComponent, CreateServerDialogResult } from '../app-part-dialog-create-server/app-part-dialog-create-server.component';
+import { Event } from '../event';
+import { EventType } from '../event-type.enum';
 
 @Component({
   selector: 'app-part-serverselection',
@@ -10,7 +12,7 @@ import { AppPartDialogCreateServerComponent } from '../app-part-dialog-create-se
 })
 export class AppPartServerselectionComponent implements OnInit {
 
-  constructor(public dialog: MatDialog) { }
+  constructor(private dialog: MatDialog, private ngZone: NgZone) { }
 
   @Input() servers : Server[];
   @Output() selectedServerOut : EventEmitter<Server> = new EventEmitter<Server>();
@@ -24,7 +26,14 @@ export class AppPartServerselectionComponent implements OnInit {
   }
 
   CreateServer(){
-    
+    this.dialog.open(AppPartDialogCreateServerComponent).afterClosed().subscribe((data: CreateServerDialogResult) => {
+      if(data.create == true){
+        let cS: Event;
+        cS.type = EventType.CREATE_SERVER;
+        cS.obj = { name: ""}
+        this.selectedServerOut.emit()
+      }
+    });
   }
 
   ngOnInit() {

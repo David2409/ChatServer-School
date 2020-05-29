@@ -1,7 +1,6 @@
 package at.schaefer.david.Communication.Requests;
 
-import at.schaefer.david.Communication.DTO.DTOMessage;
-import at.schaefer.david.Communication.DTO.DTOUser;
+import at.schaefer.david.Communication.DTO.*;
 import at.schaefer.david.Exceptions.InvalidMessageException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -32,6 +31,10 @@ public class DTORequest<T> {
                 return DTOUser.GetDTOUser(map);
             case SEND_MESSAGE:
                 return DTOMessage.GetDTOMessage(map);
+            case CREATE_SERVER:
+                return DTOServer.GetDTOServer(map);
+            case CREATE_ROOM:
+                return DTORoom.GetDTORoom(map);
             default:
                 throw new InvalidMessageException();
         }

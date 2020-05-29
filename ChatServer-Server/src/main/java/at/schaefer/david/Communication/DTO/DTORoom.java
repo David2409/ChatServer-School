@@ -5,15 +5,28 @@ import at.schaefer.david.General.User;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.LinkedHashMap;
 
 public class DTORoom {
+    public String serverId;
     public String id;
     public String name;
     public DTOMessage[] messages;
     public DTOMessage[] newMessages;
 
-    private static DTORoom GetDTORoom(Room room ,User u) {
+    public static DTORoom GetDTORoom(Room room, String serverId){
         DTORoom dtoRoom = new DTORoom();
+        dtoRoom.serverId = serverId;
+        dtoRoom.id = Long.toString(room.id);
+        dtoRoom.name = room.name;
+        dtoRoom.messages = new DTOMessage[0];
+        dtoRoom.newMessages = new DTOMessage[0];
+        return dtoRoom;
+    }
+
+    public static DTORoom GetDTORoom(Room room ,User u, String serverId) {
+        DTORoom dtoRoom = new DTORoom();
+        dtoRoom.serverId = serverId;
         dtoRoom.id = Long.toString(room.id);
         dtoRoom.name = room.name;
         dtoRoom.messages = new DTOMessage[0];
@@ -28,11 +41,18 @@ public class DTORoom {
         return dtoRoom;
     }
 
-    public static DTORoom[] GetDTORooms(Room[] rooms, User u){
+    public static DTORoom[] GetDTORooms(Room[] rooms, User u, String serverId){
         DTORoom[] erg = new DTORoom[rooms.length];
         for(int i = 0; i < erg.length; i++){
-            erg[i] = GetDTORoom(rooms[i], u);
+            erg[i] = GetDTORoom(rooms[i], u, serverId);
         }
         return erg;
+    }
+
+    public static DTORoom GetDTORoom(LinkedHashMap linkedHashMap){
+        DTORoom dtoRoom = new DTORoom();
+        dtoRoom.name = (String) linkedHashMap.get("name");
+        dtoRoom.serverId = Long.getLong((String) linkedHashMap.get("serverId"), 10).toString();
+        return dtoRoom;
     }
 }
