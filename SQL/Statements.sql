@@ -8,7 +8,7 @@
 #room_role
 	INSERT INTO room_role (`room_id`,`role_id`,`cansee`,`canwrite`,`canread`) VALUES ('{room_id}','{role_id}','{cansee}','{canwrite}','{canread}');
 #Server
-	INSERT INTO server (`name`) VALUES ('{name}');
+	INSERT INTO server (`name`, `owner`) VALUES ('{name}', '{user.id}');
 #Room
 	INSERT INTO room (`server_id`, `name`) VALUES ('{server_id}','{name}');
 #Role
@@ -53,6 +53,8 @@
 	SELECT u.id, u.name FROM server_user su JOIN user u ON(u.id = su.user_id) WHERE su.server_id = '{user_id}' AND u.id NOT IN {expect_user_id};
 #user
 	SELECT name FROM user WHERE id = '{user_id}';
+#is owner
+	SELECT TRUE FROM server WHERE id='{server_id}' AND owner = '{user_id}';
 
 #----------------------------------DELETE----------------------------------
 #Remove user from Server
@@ -63,6 +65,8 @@
 	DELETE FROM role WHERE id = '{role_id}';
 #Room
 	DELETE FROM room WHERE id = '{role_id}';
+#Server
+	DELETE FROM server WHERE id = '{server_id}';
 
 #----------------------------------UPDATE----------------------------------
 #Privileges

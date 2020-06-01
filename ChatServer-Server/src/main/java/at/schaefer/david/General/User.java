@@ -67,7 +67,7 @@ public class User {
     }
 
     public void CreateServer(String name) throws InvalidOperationException, SQLException, JsonProcessingException {
-        Server server = Server.CreateServer(name);
+        Server server = Server.CreateServer(name, this);
         server.AddUser(this);
         server.JoinSession(this);
         AddServer(server);
@@ -112,6 +112,9 @@ public class User {
     }
 
     public boolean CanModify(long serverId) throws SQLException { //do to
+        if(IsOwner(serverId)){
+            return true;
+        }
         Statement statement = Global.conDatabase.createStatement();
         ResultSet rs = statement.executeQuery("SELECT TRUE FROM user_role ur JOIN role r ON (r.id = ur.role_id) WHERE r.server_id = '" + serverId + "' AND ur.user_id = '" + this.id +"' AND r.canchange = TRUE;");
         boolean can = rs.next();
@@ -120,6 +123,9 @@ public class User {
     }
 
     public boolean CanInvite(long serverId) throws SQLException {
+        if(IsOwner(serverId)){
+            return true;
+        }
         Statement statement = Global.conDatabase.createStatement();
         ResultSet rs = statement.executeQuery("SELECT TRUE FROM user_role ur JOIN role r ON (r.id = ur.role_id) WHERE r.server_id = '" + serverId + "' AND ur.user_id = '" + this.id +"' AND r.caninvite = TRUE;");
         boolean can = rs.next();
@@ -127,7 +133,10 @@ public class User {
         return can;
     }
 
-    public boolean CanSend(long roomId) throws SQLException {
+    public boolean CanSend(long serverId, long roomId) throws SQLException {
+        if(IsOwner(serverId)){
+            return true;
+        }
         Statement statement = Global.conDatabase.createStatement();
         ResultSet rs = statement.executeQuery("SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '" + roomId + "' AND ur.user_id = '" + this.id + "') GROUP BY rr.room_id HAVING SUM(rr.canwrite) = '0';");
         boolean can = !rs.next();
@@ -135,7 +144,10 @@ public class User {
         return can;
     }
 
-    public boolean CanRead(long roomId) throws SQLException {
+    public boolean CanRead(long serverId, long roomId) throws SQLException {
+        if(IsOwner(serverId)){
+            return true;
+        }
         Statement statement = Global.conDatabase.createStatement();
         ResultSet rs = statement.executeQuery("SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '" + roomId + "' AND ur.user_id = '" + this.id + "') GROUP BY rr.room_id HAVING SUM(rr.canread) = '0';");
         boolean can = !rs.next();
@@ -143,12 +155,23 @@ public class User {
         return can;
     }
 
-    public boolean CanSee(long roomId) throws SQLException {
+    public boolean CanSee(long serverId, long roomId) throws SQLException {
+        if(IsOwner(serverId)){
+            return true;
+        }
         Statement statement = Global.conDatabase.createStatement();
         ResultSet rs = statement.executeQuery("SELECT FALSE FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id AND rr.room_id = '" + roomId + "' AND ur.user_id = '" + this.id + "') GROUP BY rr.room_id HAVING SUM(rr.cansee) = '0';");
         boolean can = !rs.next();
         statement.close();
         return can;
+    }
+
+    public boolean IsOwner(long serverId) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT TRUE FROM server WHERE id='" + serverId + "' AND owner = '" + this.id + "';");
+        boolean erg = rs.next();
+        statement.close();
+        return erg;
     }
 
     public WebSocket GetConnection(){
@@ -187,33 +210,34 @@ public class User {
         return null;
     }
 
-    /*
-    private int GetInsertionPoint(){
-        for(int i = 0; i < servers.length){
-            if(servers[i])
-        }
-    }*/
 
-    private void AddServer(Server s){
-
-        synchronized (servers){
+    private int GetInsertionPoint(long insertId){
+        if(servers.length == 0){
+            return 0;
         }
+        for(int i = 0; i < servers.length; i++){
+            if(servers[i].id > insertId){
+                return i;
+            }
+        }
+        return servers.length;
     }
 
-    public static void main(String[] args) throws SQLException, IOException, NoSuchAlgorithmException, InvalidUserException, InvalidOperationException {
-        Global.init();
-        System.out.println(Global.HashPassword("Hallo").length());
-        User user = User.CreateUser(null, "testuser", "test");
-        Server server = Server.CreateServer("TestServer");
-        System.out.println(user.id);
-        System.out.println(server.id);
-        server.AddUser(user);
-        long roleId = Role.Create("TestRole", server.id);
-        long roomId = Room.Create(server.id, "Test Room");
-        Role.Change(server.id, new String[] {roleId + "," + roomId + ",1,1,1"});
-        server.JoinSession(user);
-        DTOResponse response = new DTOResponse(ResponseType.SERVER_MAP, user.servers);
-        System.out.println(response.toJSON());
-        System.out.println("Finished");
+    private void AddServer(Server s){
+        synchronized (servers){
+                Server[] newServers = new Server[servers.length+1];
+                int insertPoint = GetInsertionPoint(s.id);
+                int pointOld = 0;
+                for(int i = 0; i < newServers.length; i++) {
+                    if(i == insertPoint) {
+                        newServers[i] = s;
+                    }
+                    else {
+                        newServers[i] = servers[pointOld];
+                        pointOld++;
+                    }
+                }
+                servers = newServers;
+        }
     }
 }

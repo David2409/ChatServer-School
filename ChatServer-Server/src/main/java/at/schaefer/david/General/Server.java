@@ -28,6 +28,7 @@ public class Server implements IIndex {
     protected static Tree servers  = new Tree(8);
     public List<User> onlineUsers;
     protected long notificationRoomId;
+    protected long ownerId;
 
     protected Server(long iId)
     {
@@ -45,9 +46,9 @@ public class Server implements IIndex {
         return server;
     }
 
-    public static Server CreateServer(String name) throws SQLException, InvalidOperationException {
+    public static Server CreateServer(String name, User user) throws SQLException, InvalidOperationException {
         Statement statement = Global.conDatabase.createStatement();
-        statement.execute("INSERT INTO server (`name`) VALUES ('" + name + "');", Statement.RETURN_GENERATED_KEYS);
+        statement.execute("INSERT INTO server (`name`, `owner`) VALUES ('" + name + "', '" + user.id + "');", Statement.RETURN_GENERATED_KEYS);
         ResultSet rs = statement.getGeneratedKeys();
         rs.next();
         long id = rs.getLong(1);
@@ -65,7 +66,7 @@ public class Server implements IIndex {
             rooms[i] = Room.Get(rsRooms.getLong(1), this);
             rsRooms.next();
         }
-        ResultSet rs =statement.executeQuery("SELECT notificationroom FROM server WHERE '" + this.id + "' AND notificationroom IS NOT NULL;");
+        ResultSet rs =statement.executeQuery("SELECT notificationroom FROM server WHERE id = '" + this.id + "' AND notificationroom IS NOT NULL;");
         if(rs.next()){
             notificationRoomId = rs.getLong(1);
         }
@@ -77,9 +78,10 @@ public class Server implements IIndex {
                 notificationRoomId = 0;
             }
         }
-        rs = statement.executeQuery("SELECT name FROM server WHERE id = '" + id + "';");
+        rs = statement.executeQuery("SELECT name, owner FROM server WHERE id = '" + id + "';");
         rs.next();
         name = rs.getString(1);
+        ownerId = rs.getLong(2);
         statement.close();
         init = true;
     }
@@ -161,6 +163,9 @@ public class Server implements IIndex {
     public void CreateRoom(String name) throws SQLException, InvalidOperationException {
         long roomId = Room.Create(this.id, name);
         Room room = Room.Get(roomId, this);
+        for(User user: onlineUsers){
+            room.Add(user);
+        }
         PutRoom(room);
         if(rooms.length == 1){
             notificationRoomId = rooms[0].id;

@@ -22,7 +22,7 @@ public class DTOServer {
         List<Room> temp = new ArrayList<Room>(server.rooms.length);
         try{
             for (Room r: server.rooms) {
-                if(u.CanSee(r.id)){
+                if(u.CanSee(server.id, r.id)){
                     temp.add(r);
                 }
             }

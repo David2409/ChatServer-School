@@ -144,7 +144,7 @@ public class ChatServer extends WebSocketServer {
                     throw new InvalidOperationException();
                 }
                 DTOMessage message = (DTOMessage) request.obj;
-                if(user.CanSend(message.roomId) == true){
+                if(user.CanSend(message.serverId, message.roomId) == true){
                     user.SendMessage(message.serverId, message.roomId, message.msg);
                 }
                 break;

@@ -32,7 +32,7 @@ public class DTORoom {
         dtoRoom.messages = new DTOMessage[0];
         dtoRoom.newMessages = new DTOMessage[0];
         try{
-            if(u.CanRead(room.id)){
+            if(u.CanRead(Long.valueOf(serverId), room.id)){
                 dtoRoom.messages = room.GetMessagesBefore(u.lastLogout);
                 dtoRoom.newMessages = room.GetMessagesAfter(u.lastLogout);
             }
