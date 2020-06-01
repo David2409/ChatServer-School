@@ -7,10 +7,14 @@ import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
 import at.schaefer.david.Exceptions.InvalidUserException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.sun.deploy.util.ArrayUtil;
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Room {
@@ -89,6 +93,7 @@ public class Room {
         ResultSet rs = statement.executeQuery("SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = '" + this.id + "' AND m.sendedat < '" + time + "' ORDER BY m.sendedat DESC LIMIT 100;");
         DTOMessage[] erg = DTOMessage.GetArray(rs);
         statement.close();
+        ArrayUtils.reverse(erg);
         return erg;
     }
 
@@ -97,6 +102,7 @@ public class Room {
         ResultSet rs = statement.executeQuery("SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = '" + this.id + "' AND m.sendedat > '" + time + "' ORDER BY m.sendedat DESC");
         DTOMessage[] erg = DTOMessage.GetArray(rs);
         statement.close();
+        ArrayUtils.reverse(erg);
         return erg;
     }
 }

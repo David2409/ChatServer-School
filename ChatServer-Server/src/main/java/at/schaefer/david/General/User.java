@@ -1,5 +1,7 @@
 package at.schaefer.david.General;
 
+import at.schaefer.david.Communication.DTO.DTOServer;
+import at.schaefer.david.Communication.DTO.DTOUser;
 import at.schaefer.david.Communication.Requests.DTORequest;
 import at.schaefer.david.Communication.Responses.DTOResponse;
 import at.schaefer.david.Communication.Responses.ResponseType;
@@ -28,7 +30,7 @@ public class User {
     public String lastLogout;
     public long id;
 
-    protected User(WebSocket iConnection, long iId, String iName, String iLastLogout) throws SQLException, InvalidOperationException {
+    protected User(WebSocket iConnection, long iId, String iName, String iLastLogout) throws SQLException, InvalidOperationException, JsonProcessingException {
         connection = iConnection;
         id = iId;
         name = iName;
@@ -43,9 +45,11 @@ public class User {
             servers[i].JoinSession(this);
             rs.next();
         }
+        connection.send(new DTOResponse<DTOUser>(ResponseType.LOGGED_IN, new DTOUser(name)).toJSON());
+        connection.send(new DTOResponse<DTOServer[]>(ResponseType.SERVER_MAP, DTOServer.GetDTOServerArray(servers, this)).toJSON());
     }
 
-    public static User GetUser(WebSocket connection, String username, String password) throws SQLException, InvalidUserException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidOperationException {
+    public static User GetUser(WebSocket connection, String username, String password) throws SQLException, InvalidUserException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidOperationException, JsonProcessingException {
         Statement statement = Global.conDatabase.createStatement();
         ResultSet rs = statement.executeQuery("SELECT id, lastlogout FROM user WHERE name = '" + username + "' AND password = '" + Global.HashPassword(password) + "';");
         boolean result = rs.next();
@@ -62,23 +66,43 @@ public class User {
         throw new InvalidUserException();
     }
 
-    public static User CreateUser(WebSocket connection, String username, String password) throws NoSuchAlgorithmException, SQLException, InvalidUserException, UnsupportedEncodingException, InvalidOperationException {
+    public void CreateServer(String name) throws InvalidOperationException, SQLException, JsonProcessingException {
+        Server server = Server.CreateServer(name);
+        server.AddUser(this);
+        server.JoinSession(this);
+        AddServer(server);
+        connection.send(new DTOResponse<DTOServer>(ResponseType.NEW_SERVER, DTOServer.GetDTOServer(server, this)).toJSON());
+    }
+
+    public void CreateRoom(long serverId, String name) throws SQLException, InvalidOperationException {
+        Server server = GetServer(serverId);
+        if(CanModify(serverId)){
+            server.CreateRoom(name);
+        }
+        else{
+            throw new InvalidOperationException();
+        }
+    }
+
+    public static User CreateUser(WebSocket connection, String username, String password) throws NoSuchAlgorithmException, SQLException, InvalidUserException, UnsupportedEncodingException, InvalidOperationException, JsonProcessingException {
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("INSERT INTO user (`name`,`password`) VALUES ('" + username + "','" + Global.HashPassword(password) + "');");
         statement.close();
         return GetUser(connection, username, password);
     }
 
-    public void LogOut() throws SQLException {
+    public void LogOut() throws SQLException, JsonProcessingException {
         for (Server server: servers) {
             server.RemoveFromSession(this);
         }
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("UPDATE user SET lastlogout = NOW() WHERE id = '" + this.id + "';");
         statement.close();
+        connection.send(new DTOResponse(ResponseType.LOGGED_OUT, null).toJSON());
     }
 
-    public void DeleteUser() throws SQLException {
+    public void DeleteUser() throws SQLException, JsonProcessingException {
+        LogOut();
         for (Server server: servers) {
             server.RemoveUser(this.id);
         }
@@ -89,9 +113,16 @@ public class User {
 
     public boolean CanModify(long serverId) throws SQLException { //do to
         Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT FALSE FROM user_role ur JOIN role r ON(ur.role_id = r.id AND r.server_id = '" + serverId + "' AND ur.user_id = '" + this.id + "') HAVING SUM(r.canchange) = '0';");
-        rs.next();
-        boolean can = !rs.next();
+        ResultSet rs = statement.executeQuery("SELECT TRUE FROM user_role ur JOIN role r ON (r.id = ur.role_id) WHERE r.server_id = '" + serverId + "' AND ur.user_id = '" + this.id +"' AND r.canchange = TRUE;");
+        boolean can = rs.next();
+        statement.close();
+        return can;
+    }
+
+    public boolean CanInvite(long serverId) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT TRUE FROM user_role ur JOIN role r ON (r.id = ur.role_id) WHERE r.server_id = '" + serverId + "' AND ur.user_id = '" + this.id +"' AND r.caninvite = TRUE;");
+        boolean can = rs.next();
         statement.close();
         return can;
     }

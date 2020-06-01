@@ -18,12 +18,13 @@ import { AppPartDialogInviteComponent } from './app-part-dialog-invite/app-part-
 import { AppPartDialogModifyServerComponent } from './app-part-dialog-modify-server/app-part-dialog-modify-server.component';
 import { AppPartDialogModifyRoomComponent } from './app-part-dialog-modify-room/app-part-dialog-modify-room.component';
 import { MatDialogModule } from '@angular/material/dialog';
-import { MatButtonModule } from '@angular/material/button';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { AppPartListUsersComponent } from './app-part-list-users/app-part-list-users.component';
+import { AppPartUserComponent } from './app-part-user/app-part-user.component';
+import { AppPartDialogModifyUserComponent } from './app-part-dialog-modify-user/app-part-dialog-modify-user.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,10 @@ import { MatInputModule } from '@angular/material/input';
     AppPartDialogCreateRoomComponent,
     AppPartDialogInviteComponent,
     AppPartDialogModifyServerComponent,
-    AppPartDialogModifyRoomComponent
+    AppPartDialogModifyRoomComponent,
+    AppPartListUsersComponent,
+    AppPartUserComponent,
+    AppPartDialogModifyUserComponent
   ],
   imports: [
     BrowserModule,
@@ -54,7 +58,11 @@ import { MatInputModule } from '@angular/material/input';
     MatInputModule
   ],
   entryComponents: [
-    AppPartDialogCreateServerComponent
+    AppPartDialogCreateServerComponent,
+    AppPartDialogCreateRoomComponent,
+    AppPartDialogInviteComponent,
+    AppPartDialogModifyRoomComponent,
+    AppPartDialogModifyServerComponent
   ],
   providers: [
   ],

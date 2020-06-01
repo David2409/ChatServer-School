@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-part-dialog-invite',
@@ -7,9 +8,25 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppPartDialogInviteComponent implements OnInit {
 
-  constructor() { }
+  data: DialogInviteResult = { name: "", invite: false}
+
+  constructor(private dialogRef: MatDialogRef<AppPartDialogInviteComponent>) { }
 
   ngOnInit() {
+    
   }
 
+  onClickInvite(){
+    this.data.invite = true
+    this.dialogRef.close(this.data);
+  }
+
+  onClickCancel(){
+    this.dialogRef.close();
+  }
+}
+
+export interface DialogInviteResult {
+  invite: boolean,
+  name: string
 }

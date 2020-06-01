@@ -1,5 +1,6 @@
-<div id="roomSelectContainer" class="h100">
-    <div class="">
-        <app-part-roomselection-item *ngFor="let room of server.rooms" [room]="room" [selected]="selectedRoom" (outRoom)="Emit($event)"> </app-part-roomselection-item>
+<div id="roomSelectContainer" class="h100 overflowAuto">
+    <app-part-roomselection-item *ngFor="let room of server.rooms" [room]="room" [selected]="selectedRoom" (outRoom)="Emit($event)" (eventChannel)="EventChannel($event)"> </app-part-roomselection-item>
+    <div *ngIf="server.id != ''" class="w100">
+        <button class="btn btn-secondary my-2 cS w100" (click)="CreateServer()">Create room</button>
     </div>
 </div>

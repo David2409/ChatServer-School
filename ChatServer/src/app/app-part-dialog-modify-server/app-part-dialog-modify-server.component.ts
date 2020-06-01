@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Inject } from '@angular/core';
+import { Server } from '../server';
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-part-dialog-modify-server',
@@ -7,9 +9,34 @@ import { Component, OnInit } from '@angular/core';
 })
 export class AppPartDialogModifyServerComponent implements OnInit {
 
-  constructor() { }
+  constructor(private dialogRef: MatDialogRef<AppPartDialogModifyServerComponent>, @Inject(MAT_DIALOG_DATA) public data: DialogModifyServerResult) { }
 
   ngOnInit() {
+
+  }
+
+  Remove(){
+    this.data.event = DialogModifyServerResultType.REMOVE;
+    this.dialogRef.close(this.data);
+  }
+
+  Save(){
+    this.dialogRef.close();
+  }
+
+  Cancel(){
+    this.dialogRef.close();
   }
 
 }
+
+export interface DialogModifyServerResult {
+  event: DialogModifyServerResultType,
+  server: Server
+};
+
+export enum DialogModifyServerResultType {
+  CHANGED,
+  REMOVE,
+  NONE
+};

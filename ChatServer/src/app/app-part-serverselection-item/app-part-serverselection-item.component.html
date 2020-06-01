@@ -1,3 +1,6 @@
 <div class="card d-flex justify-content-center p5 item" (click)="this.Emit()" [ngClass]="{'selected': this.server.id == this.selected.id, 'notSelected': this.server.id != this.selected.id}">
-    <h4 class="textC m0">{{server.name}}</h4>
+    <div class="row w100 m0">
+        <h4 class="textC m0 col-10 p0">{{server.name}}</h4>
+        <div class="col-2 tc m0 p0" (click)="Change()">C</div>
+    </div>
 </div>

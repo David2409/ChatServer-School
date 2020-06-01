@@ -1,6 +1,6 @@
 package at.schaefer.david.General;
 
-import at.schaefer.david.Communication.DTO.DTORemove;
+import at.schaefer.david.Communication.DTO.DTOGeneral;
 import at.schaefer.david.Communication.DTO.DTORoom;
 import at.schaefer.david.Communication.DTO.DTOUser;
 import at.schaefer.david.Communication.Responses.DTOResponse;
@@ -84,8 +84,16 @@ public class Server implements IIndex {
         init = true;
     }
 
+    public void Delete() throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        statement.execute("DELETE FROM server WHERE id = '" + this.id + "';");
+        statement.close();
+        Emit(new DTOResponse<DTOGeneral>(ResponseType.DELETED_SERVER, DTOGeneral.GetDTORemoveServer(Long.toString(this.id))));
+    }
+
     public void JoinSession(User user) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
+        Emit(new DTOResponse<DTOGeneral>(ResponseType.ONLINE_USER, DTOGeneral.GetDTORemoveUser(Long.toString(this.id), Long.toString(user.id))));
         ResultSet rsRooms = statement.executeQuery("SELECT DISTINCT r.id FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) JOIN role r ON (rr.room_id = r.id) WHERE ur.user_id = '" + user.id + "' AND r.server_id = '" + this.id + "' GROUP BY rr.room_id HAVING SUM(rr.canread) = '0' ORDER BY r.id;");
         synchronized (onlineUsers){
             onlineUsers.add(user);
@@ -103,6 +111,7 @@ public class Server implements IIndex {
                 servers.Remove(this);
             }
         }
+        Emit(new DTOResponse<DTOGeneral>(ResponseType.OFFLINE_USER, DTOGeneral.GetDTORemoveUser(Long.toString(this.id), Long.toString(u.id))));
     }
 
     public void AddUser(User user) throws SQLException {
@@ -116,15 +125,37 @@ public class Server implements IIndex {
         Emit(new DTOResponse<DTOUser>(ResponseType.ADDED_USER, DTOUser.GetDTOUser(user)));
     }
 
+    public void AddUser(long userId) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        statement.execute("INSERT INTO server_user (`server_id`,`user_id`) VALUES ('" + this.id + "','" + userId + "');");
+        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '" + userId + "';");
+        rs.next();
+        String username = rs.getString(1);
+        statement.close();
+        EmitServerMessage("User '" + username + "' has join the Server");
+        Emit(new DTOResponse<DTOUser>(ResponseType.ADDED_USER, DTOUser.GetDTOUser(userId)));
+    }
+
+    public void AddUser(String username) throws InvalidUserException, SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT id FROM user WHERE name = '" + username + "';");
+        if(!rs.next()){
+            throw new InvalidUserException();
+        }
+        long id = rs.getLong(1);
+        statement.close();
+        AddUser(id);
+    }
+
     public void RemoveUser(long userId) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("DELETE FROM server_user WHERE server_id = '" + this.id + "' AND user_id = '" + userId + "';");
-        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '{user_id}';");
+        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '" + userId + "';");
         rs.next();
         String username = rs.getString(1);
         statement.close();
         EmitServerMessage("User '" + username + "' has left the Server");
-        Emit(new DTOResponse<DTORemove>(ResponseType.REMOVED_USER, DTORemove.GetDTORemoveUser(Long.toString(this.id), Long.toString(userId))));
+        Emit(new DTOResponse<DTOGeneral>(ResponseType.REMOVED_USER, DTOGeneral.GetDTORemoveUser(Long.toString(this.id), Long.toString(userId))));
     }
 
     public void CreateRoom(String name) throws SQLException, InvalidOperationException {
@@ -140,13 +171,13 @@ public class Server implements IIndex {
 
     public void DeleteRoom(long roomId) throws SQLException, InvalidOperationException {
         Room room = rooms[GetRoomIndex(roomId)];
-        Emit(new DTOResponse<DTORoom>(ResponseType.DELETED_Room, DTORoom.GetDTORoom(room, Long.toString(this.id))));
         room.Delete();
         if(roomId == notificationRoomId){
             if(rooms.length != 0){
                 notificationRoomId = rooms[0].id;
             }
         }
+        Emit(new DTOResponse<DTORoom>(ResponseType.DELETED_ROOM, DTORoom.GetDTORoom(room, Long.toString(this.id))));
         EmitServerMessage("A Room has been delete");
     }
 
@@ -221,7 +252,7 @@ public class Server implements IIndex {
     protected void AddToRooms(User user, long[] except){
         int blocked = 0;
         for(int i = 0; i < rooms.length; i++){
-            if(except.length == 0 || rooms[i].id != except[blocked]){
+            if(except.length <= blocked || rooms[i].id != except[blocked]){
                 rooms[i].Add(user);
             }
             else{

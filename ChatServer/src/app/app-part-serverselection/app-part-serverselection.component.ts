@@ -26,17 +26,19 @@ export class AppPartServerselectionComponent implements OnInit {
   }
 
   CreateServer(){
-    this.dialog.open(AppPartDialogCreateServerComponent).afterClosed().subscribe((data: CreateServerDialogResult) => {
+    this.dialog.open(AppPartDialogCreateServerComponent, { data: { create: false, name: "NEW SERVER"}}).afterClosed().subscribe((data: CreateServerDialogResult) => {
       if(data.create == true){
-        let cS: Event;
-        cS.type = EventType.CREATE_SERVER;
-        cS.obj = { name: ""}
-        this.selectedServerOut.emit()
+        let cS: Event = { type: EventType.CREATE_SERVER, obj: { name: data.name}};
+        this.EventChannel(cS);
       }
     });
   }
 
   ngOnInit() {
     this.selectedServer = NullServer;
+  }
+
+  EventChannel(event){
+    this.eventChannel.emit(event);
   }
 }

@@ -6,11 +6,12 @@ import at.schaefer.david.General.Server;
 import at.schaefer.david.General.User;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.LinkedHashMap;
 
 public class DTOUser {
-    public long id;
+    public String id;
     public String username;
     public String password;
 
@@ -22,20 +23,31 @@ public class DTOUser {
         username = iUsername;
     }
 
-    public DTOUser(long iId, String iUsername) { id = iId; username = iUsername; }
+    public DTOUser(long iId, String iUsername) { id = Long.toString(iId); username = iUsername; }
 
     public static DTOUser GetDTOUser(LinkedHashMap map){
         DTOUser erg = new DTOUser();
-        erg.password = (String) map.get("password");
         erg.username = (String) map.get("username");
+        if(map.containsKey("password")){
+            erg.password = (String) map.get("password");
+        }
         return erg;
     }
 
     public static DTOUser GetDTOUser(User u){
         DTOUser erg = new DTOUser();
-        erg.id = u.id;
+        erg.id = Long.toString(u.id);
         erg.username = u.name;
         return erg;
+    }
+
+    public static DTOUser GetDTOUser(long id) throws SQLException {
+        DTOUser dtoUser = new DTOUser();
+        Statement statement = Global.conDatabase.createStatement();
+        ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '" + id  + "';");
+        dtoUser.username = rs.getString(1);
+        dtoUser.id = Long.toString(id);
+        return dtoUser;
     }
 
     public static DTOUser[] GetDTOUsers(User[] users){

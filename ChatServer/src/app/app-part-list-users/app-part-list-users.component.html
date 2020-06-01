@@ -1,0 +1,13 @@
+<div *ngIf="server.id != ''">
+    <div class="card" (click)="InviteUser()">
+        <button>INVITE USER</button>
+    </div>
+    <div *ngIf="server.onlineUser.length > 0">
+        <h4 class="tc">ONLINE USER</h4>
+        <app-part-user *ngFor="let user of server.onlineUser" [user]="user" (eventChannel)="EventChannel($event)"></app-part-user>
+    </div>
+    <div *ngIf="server.offlineUser.length > 0">
+        <h4 class="tc">OFFLINE USER</h4>
+        <app-part-user *ngFor="let user of server.offlineUser" [user]="user" (eventChannel)="EventChannel($event)"></app-part-user>
+    </div>
+</div>

@@ -35,6 +35,14 @@ public class DTORequest<T> {
                 return DTOServer.GetDTOServer(map);
             case CREATE_ROOM:
                 return DTORoom.GetDTORoom(map);
+            case INVITE_USER:
+                return DTOInvite.GetDTOInvite(map);
+            case REMOVE_USER:
+                return DTOGeneral.GetDTOGeneral(map);
+            case DELETE_ROOM:
+                return DTOGeneral.GetDTOGeneral(map);
+            case DELETE_SERVER:
+                return DTOGeneral.GetDTOGeneral(map);
             default:
                 throw new InvalidMessageException();
         }

@@ -19,6 +19,7 @@ export class AppPartDialogCreateServerComponent implements OnInit {
   }
 
   onClickCreate(): void{
+    this.data.create = true;
     this.dialogRef.close(this.data);
   }
 }

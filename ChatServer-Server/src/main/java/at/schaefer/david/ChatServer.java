@@ -1,9 +1,6 @@
 package at.schaefer.david;
 
-import at.schaefer.david.Communication.DTO.DTOMessage;
-import at.schaefer.david.Communication.DTO.DTORoom;
-import at.schaefer.david.Communication.DTO.DTOServer;
-import at.schaefer.david.Communication.DTO.DTOUser;
+import at.schaefer.david.Communication.DTO.*;
 import at.schaefer.david.Communication.Requests.DTORequest;
 import at.schaefer.david.Communication.Responses.DTOResponse;
 import at.schaefer.david.Communication.Responses.ResponseType;
@@ -56,11 +53,12 @@ public class ChatServer extends WebSocketServer {
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
         conns.add(conn);
         System.out.println("New connection from " + conn.getRemoteSocketAddress().getAddress().getHostAddress());
-        try {
-            conn.send(new DTOResponse(ResponseType.REMOVED_MESSAGE, null).toJSON());
-        } catch (JsonProcessingException e) {
+        /*try {
+            conn.setAttachment(User.GetUser(conn, "Chrascher", "test"));
+            System.out.println("Logged IN");
+        } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     @Override
@@ -115,8 +113,6 @@ public class ChatServer extends WebSocketServer {
                 DTOUser createU = (DTOUser) request.obj;
                 user = User.CreateUser(conn, createU.username, createU.password);
                 conn.setAttachment(user);
-                conn.send(new DTOResponse<DTOUser>(ResponseType.LOGGED_IN, new DTOUser(createU.username)).toJSON());
-                conn.send(new DTOResponse<DTOServer[]>(ResponseType.SERVER_MAP, DTOServer.GetDTOServerArray(user.servers, user)).toJSON());
                 break;
 
             case DELETE_USER:
@@ -124,7 +120,6 @@ public class ChatServer extends WebSocketServer {
                     throw new InvalidOperationException();
                 }
                 user.DeleteUser();
-                conn.send(new DTOResponse(ResponseType.LOGGED_OUT, null).toJSON());
                 break;
 
             case LOGIN:
@@ -134,8 +129,6 @@ public class ChatServer extends WebSocketServer {
                 DTOUser login = (DTOUser) request.obj;
                 user = User.GetUser(conn, login.username, login.password);
                 conn.setAttachment(user);
-                conn.send(new DTOResponse<DTOUser>(ResponseType.LOGGED_IN, new DTOUser(login.username)).toJSON());
-                conn.send(new DTOResponse<DTOServer[]>(ResponseType.SERVER_MAP, DTOServer.GetDTOServerArray(user.servers, user)).toJSON());
                 break;
 
             case LOGOUT:
@@ -144,7 +137,6 @@ public class ChatServer extends WebSocketServer {
                 }
                 user.LogOut();
                 conn.setAttachment(null);
-                conn.send(new DTOResponse(ResponseType.LOGGED_OUT, null).toJSON());
                 break;
 
             case SEND_MESSAGE:
@@ -162,10 +154,7 @@ public class ChatServer extends WebSocketServer {
                     throw new InvalidOperationException();
                 }
                 DTOServer dtoserver = (DTOServer) request.obj;
-                Server s = Server.CreateServer(dtoserver.name);
-                s.AddUser(user.id);
-                s.JoinSession(user);
-                conn.send(new DTOResponse<DTOServer>(ResponseType.NEW_SERVER, DTOServer.GetDTOServer(s, user)).toJSON());
+                user.CreateServer(dtoserver.name);
                 break;
 
             case CREATE_ROOM:
@@ -173,8 +162,55 @@ public class ChatServer extends WebSocketServer {
                     throw new InvalidOperationException();
                 }
                 DTORoom dtoRoom = (DTORoom) request.obj;
-                Server server =user.GetServer(Long.valueOf(dtoRoom.serverId));
-                server.CreateRoom(dtoRoom.name);
+                user.CreateRoom(Long.valueOf(dtoRoom.serverId), dtoRoom.name);
+                break;
+
+            case INVITE_USER:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTOInvite dtoInvite = (DTOInvite) request.obj;
+                if(user.CanInvite(Long.valueOf(dtoInvite.serverId))){
+                    try{
+                        user.GetServer(Long.valueOf(dtoInvite.serverId)).AddUser(dtoInvite.username);
+                    } catch (Exception e){
+                        throw new InvalidOperationException();
+                    }
+                }
+                break;
+
+            case REMOVE_USER:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTOGeneral dtoGeneral = (DTOGeneral) request.obj;
+                if(!user.CanModify(Long.valueOf(dtoGeneral.serverId))) {
+                    throw new InvalidOperationException();
+                }
+                user.GetServer(Long.valueOf(dtoGeneral.serverId)).RemoveUser(Long.valueOf(dtoGeneral.userId));
+                break;
+
+            case DELETE_ROOM:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTOGeneral dtoRemoveRoom = (DTOGeneral) request.obj;
+                if(!user.CanModify(Long.valueOf(dtoRemoveRoom.serverId))){
+                    throw new InvalidOperationException();
+                }
+                user.GetServer(Long.valueOf(dtoRemoveRoom.serverId)).DeleteRoom(Long.valueOf(dtoRemoveRoom.roomId));
+                break;
+
+            case DELETE_SERVER:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTOGeneral dtoDeleteServer = (DTOGeneral) request.obj;
+                if(!user.CanModify(Long.valueOf(dtoDeleteServer.serverId))){
+                    throw new InvalidOperationException();
+                }
+                user.GetServer(Long.valueOf(dtoDeleteServer.serverId)).Delete();
+                break;
         }
     }
 }

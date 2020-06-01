@@ -5,6 +5,7 @@ public enum RequestType {
     CREATE_SERVER,
     CREATE_ROOM,
     CREATE_ROLE,
+    REMOVE_USER,
     DELETE_USER,
     DELETE_SERVER,
     DELETE_ROOM,
@@ -15,8 +16,9 @@ public enum RequestType {
     CHANGE_ROOM_NAME,
     CHANGE_ROLE_NAME,
     CHANGE_ROLE_PRIVILEGES,
-    LOGIN,
-    LOGOUT,
     MORE_MESSAGES,
-    SEND_MESSAGE
+    SEND_MESSAGE,
+    INVITE_USER,
+    LOGIN,
+    LOGOUT
 }

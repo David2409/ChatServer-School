@@ -5,7 +5,7 @@ public enum ResponseType {
     NEW_ROOM,
     NEW_SERVER,
     DELETED_MESSAGE,
-    DELETED_Room,
+    DELETED_ROOM,
     DELETED_SERVER,
     REMOVED_USER,
     ADDED_USER,

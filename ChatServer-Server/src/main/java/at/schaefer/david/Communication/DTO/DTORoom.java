@@ -52,7 +52,7 @@ public class DTORoom {
     public static DTORoom GetDTORoom(LinkedHashMap linkedHashMap){
         DTORoom dtoRoom = new DTORoom();
         dtoRoom.name = (String) linkedHashMap.get("name");
-        dtoRoom.serverId = Long.getLong((String) linkedHashMap.get("serverId"), 10).toString();
+        dtoRoom.serverId = Long.valueOf((String) linkedHashMap.get("serverId")).toString();
         return dtoRoom;
     }
 }

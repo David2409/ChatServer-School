@@ -18,14 +18,16 @@ export class AppPartLoginComponent implements OnInit {
 
   Login(){
     let user: User = {  username: (<HTMLInputElement> document.getElementById("inputUsername")).value, 
-                        password: (<HTMLInputElement> document.getElementById("inputPassword")).value };
+                        password: (<HTMLInputElement> document.getElementById("inputPassword")).value,
+                        id:"" };
     let event: Event = { type: EventType.LOGIN, obj: user };
     this.eventChannel.emit(event);
   }
 
   SignUp(){
     let user: User = {  username: (<HTMLInputElement> document.getElementById("inputUsername")).value, 
-                        password: (<HTMLInputElement> document.getElementById("inputPassword")).value };
+                        password: (<HTMLInputElement> document.getElementById("inputPassword")).value,
+                        id:"" };
     let event: Event = { type: EventType.CREATE_USER, obj: user };
     this.eventChannel.emit(event);
   }
