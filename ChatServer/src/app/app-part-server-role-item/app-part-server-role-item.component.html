@@ -1,0 +1,31 @@
+<div class="card w100">
+    <div class="row w100">
+        <div class="col-3 tc">
+            <input type="text" [(ngModel)]="role.name" (change)="changeName()">
+        </div>
+        <div class="col-3">
+            <div class="row">
+                <div class="col-6">
+                    can invite:
+                </div>
+                <div class="col-6 b1 item" [ngClass]="{'selected' : role.caninvite}" (click)="clickInvite()"></div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="row">
+                <div class="col-6">
+                    can change:
+                </div>
+                <div class="col-6 b1 item" [ngClass]="{'selected' : role.canchange}" (click)="clickChange()"></div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="row">
+                <div class="col-6">
+                    DELETE:
+                </div>
+                <div class="col-6 b1 item" [ngClass]="{'selected' : GetDel() }" (click)="clickDelete()"></div>
+            </div>
+        </div>
+    </div>
+</div>

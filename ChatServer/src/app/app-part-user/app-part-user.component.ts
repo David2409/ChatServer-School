@@ -2,7 +2,7 @@ import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { Event } from '../event';
 import { User } from '../user';
 import { MatDialog } from '@angular/material/dialog';
-import { AppPartDialogModifyUserComponent, DialogModifyUserResult, DialogModifyUserResultType } from '../app-part-dialog-modify-user/app-part-dialog-modify-user.component';
+import { AppPartDialogModifyUserComponent } from '../app-part-dialog-modify-user/app-part-dialog-modify-user.component';
 import { EventType } from '../event-type.enum';
 
 @Component({
@@ -26,15 +26,6 @@ export class AppPartUserComponent implements OnInit {
   }
 
   changeUser(){
-    let inputData : DialogModifyUserResult = {
-      event: DialogModifyUserResultType.NONE,
-      user: this.user
-    }
-    this.dialog.open(AppPartDialogModifyUserComponent, { data: inputData }).afterClosed().subscribe((data: DialogModifyUserResult) => {
-      if(data.event == DialogModifyUserResultType.REMOVE){
-        let newEvent = { type: EventType.REMOVE_USER, obj: { userId: this.user.id }};
-        this.EventChannel(newEvent);
-      }
-    });
+    this.EventChannel({type: EventType.DATA_USER, obj: {userId: this.user.id } });
   }
 }

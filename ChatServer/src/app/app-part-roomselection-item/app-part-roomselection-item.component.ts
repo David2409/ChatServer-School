@@ -1,7 +1,6 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Room } from '../room';
 import { MatDialog } from '@angular/material/dialog';
-import { AppPartDialogModifyRoomComponent, DialogModifyRoomResult, DialogModifyRoomResultType } from '../app-part-dialog-modify-room/app-part-dialog-modify-room.component';
 import { EventType } from '../event-type.enum';
 import { Event } from '../event';
 
@@ -28,17 +27,8 @@ export class AppPartRoomselectionItemComponent implements OnInit {
   }
 
   Change(){
-    let inputData: DialogModifyRoomResult = { event: DialogModifyRoomResultType.NONE, room: this.room}
-    this.dialog.open(AppPartDialogModifyRoomComponent, { data: inputData }).afterClosed().subscribe((data: DialogModifyRoomResult) => {
-      if(data.event == DialogModifyRoomResultType.NONE){
-        return;
-      }
-      let outputData: Event;
-      if(data.event == DialogModifyRoomResultType.REMOVE){
-        outputData = { type: EventType.DELETE_ROOM, obj: { serverId: this.room.serverId, roomId: this.room.id }}
-      }
-      this.EventChannel(outputData);
-    });
+    let event: Event = {type: EventType.DATA_ROOM, obj: { serverId: this.room.serverId, roomId: this.room.id}};
+    this.EventChannel(event);
   }
 
   EventChannel(event){

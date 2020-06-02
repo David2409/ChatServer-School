@@ -12,4 +12,9 @@ export enum ResponseType {
     SERVER_MAP,
     LOGGED_IN,
     LOGGED_OUT,
+    DATA_USER,
+    DATA_ROOM,
+    DATA_SERVER,
+    CHANGED_SERVER_NAME,
+    CHANGED_ROOM_NAME
 }

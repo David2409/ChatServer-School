@@ -45,6 +45,7 @@ public class DTOUser {
         DTOUser dtoUser = new DTOUser();
         Statement statement = Global.conDatabase.createStatement();
         ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '" + id  + "';");
+        rs.first();
         dtoUser.username = rs.getString(1);
         dtoUser.id = Long.toString(id);
         return dtoUser;

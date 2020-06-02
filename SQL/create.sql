@@ -51,7 +51,7 @@ CREATE TABLE messages(
     room_id BIGINT NOT NULL,
     user_id BIGINT,
     sendedat DATETIME NOT NULL DEFAULT NOW(),
-    msg VARCHAR(2000) NOT NULL,
+    msg TEXT NOT NULL,
 	FOREIGN KEY fk_room_id (room_id) REFERENCES room(id) ON DELETE CASCADE,
 	FOREIGN KEY fk_user_id (user_id) REFERENCES user(id) ON DELETE SET NULL
 );

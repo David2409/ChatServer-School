@@ -1,0 +1,11 @@
+<div>
+    <div class="row w100 p0 m0 h500 overflowAuto">
+        <app-part-server-role-item class="col-12" *ngFor="let role of roles; let i = index" [(role)]="roles[i]"></app-part-server-role-item>
+    </div>
+    <div class="row">
+        <div class="col-10">
+            <app-part-server-role-item [(role)]="newRole"></app-part-server-role-item>
+        </div>
+        <button class="col-2" (click)="AddRole()">ADD</button>
+    </div>
+</div>

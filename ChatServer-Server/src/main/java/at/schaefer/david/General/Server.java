@@ -1,8 +1,6 @@
 package at.schaefer.david.General;
 
-import at.schaefer.david.Communication.DTO.DTOGeneral;
-import at.schaefer.david.Communication.DTO.DTORoom;
-import at.schaefer.david.Communication.DTO.DTOUser;
+import at.schaefer.david.Communication.DTO.*;
 import at.schaefer.david.Communication.Responses.DTOResponse;
 import at.schaefer.david.Communication.Responses.ResponseType;
 import at.schaefer.david.Exceptions.InvalidMessageException;
@@ -111,6 +109,7 @@ public class Server implements IIndex {
             onlineUsers.remove(u);
             if(onlineUsers.size() == 0){
                 servers.Remove(this);
+                u.RemoveServer(this);
             }
         }
         Emit(new DTOResponse<DTOGeneral>(ResponseType.OFFLINE_USER, DTOGeneral.GetDTORemoveUser(Long.toString(this.id), Long.toString(u.id))));
@@ -149,7 +148,12 @@ public class Server implements IIndex {
         AddUser(id);
     }
 
-    public void RemoveUser(long userId) throws SQLException {
+    public void RemoveUser(long userId) throws SQLException, JsonProcessingException {
+        User removedUser = GetUser(userId);
+        if(removedUser != null){
+            RemoveFromSession(removedUser);
+            removedUser.connection.send(new DTOResponse<DTOGeneral>(ResponseType.DELETED_SERVER, DTOGeneral.GetDTORemoveServer(Long.toString(this.id))).toJSON());
+        }
         Statement statement = Global.conDatabase.createStatement();
         statement.execute("DELETE FROM server_user WHERE server_id = '" + this.id + "' AND user_id = '" + userId + "';");
         ResultSet rs = statement.executeQuery("SELECT name FROM user WHERE id = '" + userId + "';");
@@ -186,6 +190,62 @@ public class Server implements IIndex {
         EmitServerMessage("A Room has been delete");
     }
 
+    public void Update(DTODataServer data) throws SQLException {
+        Statement statement = Global.conDatabase.createStatement();
+        if(name != data.name){
+            statement.execute("UPDATE server SET name = '" + data.name + "' WHERE id = '" + data.serverId + "';");
+            name = data.name;
+            Emit(new DTOResponse(ResponseType.CHANGED_SERVER_NAME, DTOUpdateValue.GetDTOUpdateValue(Long.toString(id), name)));
+        }
+        for (DTORole role: data.roles) {
+            if(role.operation == RoleOperation.DELETE){
+                statement.execute("DELETE FROM role WHERE id = '" + role.id + "'; ");
+            } else if(role.operation == RoleOperation.UPDATE){
+                statement.execute("UPDATE role SET name = '" + role.name + "', caninvite = " + role.caninvite + ", canchange = " + role.canchange + " WHERE id = '" + role.id + "'; ");
+            } else if(role.operation == RoleOperation.NEW){
+                statement.execute("INSERT INTO role (`server_id`, `name`, `caninvite`, `canchange`) VALUES ('" + data.serverId + "', '" + role.name + "'," + role.caninvite + "," + role.canchange + "); ");
+            }
+        }
+        statement.close();
+    }
+
+    public void Update(DTODataRoom data) throws SQLException, JsonProcessingException {
+        this.GetRoom(Long.valueOf(data.id)).Update(data);
+    }
+
+    public void Update(DTODataUser data) throws SQLException, JsonProcessingException {
+        Statement statement = Global.conDatabase.createStatement();
+        for (DTORoleUser role: data.roles) {
+            ResultSet rs = statement.executeQuery("SELECT * FROM user_role WHERE role_id = '" + role.roleId + "' AND user_id = '" + data.userId + "'; ");
+            if(rs.next()){
+                statement.execute("DELETE FROM user_role WHERE user_id = '" + data.userId + "' AND '" + role.roleId + "';");
+            }else{
+                statement.execute("INSERT INTO user_role (`role_id`,`user_id`) VALUES ('" + role.roleId + "', '" + data.userId + "');");
+            }
+        }
+        User u = GetUser(Long.valueOf(data.userId));
+        if (u != null){
+            UpdateUser(u);
+        }
+    }
+
+    private void UpdateUser(User u) throws SQLException, JsonProcessingException {
+        for (Room room: rooms) {
+            if(room.activeUsers.contains(u)){
+                if(!u.CanRead(room.id, u.id)){
+                    room.Remove(u);
+                }
+            } else{
+                if(u.CanRead(room.id, u.id)){
+                    room.Add(u);
+                }
+            }
+            if(!u.CanSee(this.id, room.id)){
+                u.connection.send(new DTOResponse<DTOGeneral>(ResponseType.DELETED_ROOM, DTOGeneral.GetDTORemoveRoom(Long.toString(this.id), Long.toString(room.id))).toJSON());
+            }
+        }
+    }
+
     public void Emit(User from, long roomId, String msg) throws SQLException, InvalidMessageException, JsonProcessingException, InvalidOperationException {
         int index = GetRoomIndex(roomId);
         if(index != -1){
@@ -200,7 +260,7 @@ public class Server implements IIndex {
         try{
             String message = response.toJSON();
             for (User u: onlineUsers) {
-                u.GetConnection().send(message);
+                u.connection.send(message);
             }
         } catch (Exception e) {}
     }
@@ -246,6 +306,10 @@ public class Server implements IIndex {
             }
         } while(center != (left + right) / 2);
         return -1;
+    }
+
+    public Room GetRoom(long id){
+        return rooms[GetRoomIndex(id)];
     }
 
     protected void PutRoom(Room room){
@@ -298,5 +362,14 @@ public class Server implements IIndex {
             rooms[i] = rooms[i+1];
         }
         Arrays.copyOf(rooms, rooms.length-1);
+    }
+
+    protected User GetUser(long id){
+        for (User u: onlineUsers) {
+            if(u.id == id){
+                return u;
+            }
+        }
+        return null;
     }
 }

@@ -1,0 +1,31 @@
+<div class="card w100">
+    <div class="row w100">
+        <div class="col-3 tc">
+            <div>{{role.name}}</div>
+        </div>
+        <div class="col-3">
+            <div class="row">
+                <div class="col-6">
+                    can see:
+                </div>
+                <div class="col-6 b1 item" [ngClass]="{'selected' : role.cansee}" (click)="clickSee()"></div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="row">
+                <div class="col-6">
+                    can read:
+                </div>
+                <div class="col-6 b1 item" [ngClass]="{'selected' : role.canread}" (click)="clickRead()"></div>
+            </div>
+        </div>
+        <div class="col-3">
+            <div class="row">
+                <div class="col-6">
+                    can write:
+                </div>
+                <div class="col-6 b1 item" [ngClass]="{'selected' : role.canwrite }" (click)="clickWrite()"></div>
+            </div>
+        </div>
+    </div>
+</div>

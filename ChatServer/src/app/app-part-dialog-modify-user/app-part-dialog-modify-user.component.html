@@ -1,5 +1,6 @@
 <div>
-    <h5>Modify User: {{data.user.username}}</h5>
+    <h5>Modify User: {{data.name}}</h5>
+    <app-part-user-role-list [roles]="data.roles" (rolesOut)="data.roles=$event"></app-part-user-role-list>
     <div class="row btn-group w100 p0 m0">
         <button mat-button class="col-4 btn btn-outline-danger" (click)="RemoveUser()">Remove</button>
         <button mat-button class="col-4 btn btn-outline-warning" (click)="Cancel()">Cancel</button>

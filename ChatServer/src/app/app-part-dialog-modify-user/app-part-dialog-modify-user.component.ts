@@ -1,6 +1,7 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { User } from '../user';
+import { UserDialog } from '../user-dialog';
+import { EventType } from '../event-type.enum';
 
 @Component({
   selector: 'app-app-part-dialog-modify-user',
@@ -9,15 +10,14 @@ import { User } from '../user';
 })
 export class AppPartDialogModifyUserComponent implements OnInit {
 
-  constructor(private dialogRef: MatDialogRef<AppPartDialogModifyUserComponent>, @Inject(MAT_DIALOG_DATA) public data: DialogModifyUserResult) { }
+  constructor(private dialogRef: MatDialogRef<AppPartDialogModifyUserComponent>, @Inject(MAT_DIALOG_DATA) public data: UserDialog) { }
 
   ngOnInit(): void {
 
   }
 
   RemoveUser(){
-    this.data.event = DialogModifyUserResultType.REMOVE;
-    this.dialogRef.close(this.data);
+    this.dialogRef.close({ type: EventType.REMOVE_USER, obj: this.data });
   }
 
   Cancel(){
@@ -25,17 +25,6 @@ export class AppPartDialogModifyUserComponent implements OnInit {
   }
 
   Save(){
-    this.dialogRef.close(this.data);
+    this.dialogRef.close({ type: EventType.CHANGE_USER, obj: this.data});
   }
 }
-
-export interface DialogModifyUserResult {
-  event: DialogModifyUserResultType,
-  user: User
-};
-
-export enum DialogModifyUserResultType {
-  CHANGE_PRIVIELEGES,
-  REMOVE,
-  NONE
-};

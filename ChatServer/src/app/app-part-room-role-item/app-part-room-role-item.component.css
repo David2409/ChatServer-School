@@ -1,0 +1,10 @@
+.b1{
+    border: 10 solid black;
+}
+.item{
+    background-color: gray;
+    left: 0px;
+}
+.selected{
+    background-color: green;
+}

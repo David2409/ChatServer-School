@@ -1,0 +1,15 @@
+<div class="card w100">
+    <div class="row w100">
+        <div class="col-6 tc">
+            <div>{{role.roleName}}</div>
+        </div>
+        <div class="col-6">
+            <div class="row">
+                <div class="col-6">
+                    has:
+                </div>
+                <div class="col-6 b1 item" [ngClass]="{'selected' : role.has}" (click)="clickHas()"></div>
+            </div>
+        </div>
+    </div>
+</div>

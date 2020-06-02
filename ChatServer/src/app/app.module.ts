@@ -25,9 +25,12 @@ import { MatInputModule } from '@angular/material/input';
 import { AppPartListUsersComponent } from './app-part-list-users/app-part-list-users.component';
 import { AppPartUserComponent } from './app-part-user/app-part-user.component';
 import { AppPartDialogModifyUserComponent } from './app-part-dialog-modify-user/app-part-dialog-modify-user.component';
-import { AppPartRoleServerComponent } from './app-part-role-server/app-part-role-server.component';
-import { AppPartRoleRoomComponent } from './app-part-role-room/app-part-role-room.component';
-import { AppPartRoleUserComponent } from './app-part-role-user/app-part-role-user.component';
+import { AppPartServerRoleListComponent } from './app-part-server-role-list/app-part-server-role-list.component';
+import { AppPartServerRoleItemComponent } from './app-part-server-role-item/app-part-server-role-item.component';
+import { AppPartRoomRoleListComponent } from './app-part-room-role-list/app-part-room-role-list.component';
+import { AppPartRoomRoleItemComponent } from './app-part-room-role-item/app-part-room-role-item.component';
+import { AppPartUserRoleItemComponent } from './app-part-user-role-item/app-part-user-role-item.component';
+import { AppPartUserRoleListComponent } from './app-part-user-role-list/app-part-user-role-list.component';
 
 @NgModule({
   declarations: [
@@ -50,9 +53,12 @@ import { AppPartRoleUserComponent } from './app-part-role-user/app-part-role-use
     AppPartListUsersComponent,
     AppPartUserComponent,
     AppPartDialogModifyUserComponent,
-    AppPartRoleServerComponent,
-    AppPartRoleRoomComponent,
-    AppPartRoleUserComponent
+    AppPartServerRoleListComponent,
+    AppPartServerRoleItemComponent,
+    AppPartRoomRoleListComponent,
+    AppPartRoomRoleItemComponent,
+    AppPartUserRoleItemComponent,
+    AppPartUserRoleListComponent
   ],
   imports: [
     BrowserModule,

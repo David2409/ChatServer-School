@@ -25,7 +25,7 @@ import java.sql.Statement;
 
 public class User {
     public Server[] servers;
-    private WebSocket connection;
+    public WebSocket connection;
     public String name;
     public String lastLogout;
     public long id;
@@ -174,10 +174,6 @@ public class User {
         return erg;
     }
 
-    public WebSocket GetConnection(){
-        return connection;
-    }
-
     public void SendMessage(long serverId, long RoomId, String msg) throws InvalidOperationException, JsonProcessingException, SQLException, InvalidMessageException {
         Server server = GetServer(serverId);
         if(server == null){
@@ -238,6 +234,20 @@ public class User {
                     }
                 }
                 servers = newServers;
+        }
+    }
+
+    public void RemoveServer(Server s){
+        synchronized (servers){
+            Server[] newServers = new Server[servers.length-1];
+            for(int i = 0; i < newServers.length; i++) {
+                if(servers[i].id == s.id){
+                    i--;
+                } else{
+                    servers[i] = servers[i];
+                }
+            }
+            servers = newServers;
         }
     }
 }

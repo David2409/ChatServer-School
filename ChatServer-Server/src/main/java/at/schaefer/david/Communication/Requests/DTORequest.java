@@ -43,6 +43,18 @@ public class DTORequest<T> {
                 return DTOGeneral.GetDTOGeneral(map);
             case DELETE_SERVER:
                 return DTOGeneral.GetDTOGeneral(map);
+            case DATA_USER:
+                return DTOGeneral.GetDTOGeneral(map);
+            case DATA_ROOM:
+                return DTOGeneral.GetDTOGeneral(map);
+            case DATA_SERVER:
+                return DTOGeneral.GetDTOGeneral(map);
+            case CHANGE_SERVER:
+                return DTODataServer.GetDTOData(map);
+            case CHANGE_ROOM:
+                return DTODataRoom.GetDTODataRoom(map);
+            case CHANGE_USER:
+                return DTODataUser.GetDTODataUser(map);
             default:
                 throw new InvalidMessageException();
         }

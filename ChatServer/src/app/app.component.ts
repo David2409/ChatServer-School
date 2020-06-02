@@ -10,6 +10,13 @@ import { map, catchError } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { Room } from './room';
 import { General } from './general';
+import { ServerDialog } from './server-dialog';
+import { AppPartDialogModifyServerComponent } from './app-part-dialog-modify-server/app-part-dialog-modify-server.component';
+import { UpdateSingelValue } from './update-singel-value';
+import { RoomDialog } from './room-dialog';
+import { AppPartDialogModifyRoomComponent } from './app-part-dialog-modify-room/app-part-dialog-modify-room.component';
+import { UserDialog } from './user-dialog';
+import { AppPartDialogModifyUserComponent } from './app-part-dialog-modify-user/app-part-dialog-modify-user.component';
 
 
 @Component({
@@ -82,7 +89,9 @@ export class AppComponent {
 
   ExecuteEvent(event){
     console.log(event);
-    this.webSocket.subject.next(event);
+    if(event != null){
+      this.webSocket.subject.next(event);
+    }
   }
 
 
@@ -131,7 +140,10 @@ export class AppComponent {
         this.servers.push(r.obj as Server);
         break;
       case ResponseType.NEW_ROOM:
-        this.GetServer((r.obj as Room).serverId).rooms.push((r.obj as Room));
+        let server: Server = this.GetServer((r.obj as Room).serverId);
+        if(this.GetRoom(server, (r.obj as Room).id) == null){
+          server.rooms.push(r.obj);
+        }
         break;
       case ResponseType.DELETED_SERVER:
         this.servers.splice(this.GetServerPos((r.obj as General).serverId),1);
@@ -156,10 +168,43 @@ export class AppComponent {
         let s4: number = this.GetServerPos(data3.serverId);
         this.servers[s4].offlineUser.splice(this.GetUserPos(this.servers[s4].onlineUser, data3.userId), 1);
         break;
+      case ResponseType.DATA_SERVER:
+        this.ServerDialog(r.obj);
+        break;
+      case ResponseType.DATA_ROOM:
+        this.RoomDialog(r.obj);
+        break;
+      case ResponseType.DATA_USER:
+        this.UserDialog(r.obj);
+        break;
+      case ResponseType.CHANGED_SERVER_NAME:
+        this.GetServer((r.obj as UpdateSingelValue).serverId).name = (r.obj as UpdateSingelValue).value;
+        break;
+      case ResponseType.CHANGED_ROOM_NAME:
+        this.GetRoom(this.GetServer((r.obj as UpdateSingelValue).serverId), (r.obj as UpdateSingelValue).roomId).name = (r.obj as UpdateSingelValue).value;
+        break;
     }
   }
 
-  constructor(dialog: MatDialog) {
+  ServerDialog(data: ServerDialog){
+    this.dialog.open(AppPartDialogModifyServerComponent, { data: data, width: "100%" }).afterClosed().subscribe((data: Event) => {
+      this.ExecuteEvent(data);
+    });
+  }
+
+  RoomDialog(data: RoomDialog){
+    this.dialog.open(AppPartDialogModifyRoomComponent, { data: data, width: "100%" }).afterClosed().subscribe((data: Event) => {
+      this.ExecuteEvent(data);
+    });
+  }
+
+  UserDialog(data: UserDialog){
+    this.dialog.open(AppPartDialogModifyUserComponent, { data: data, width: "100%" }).afterClosed().subscribe((data: Event) => {
+      this.ExecuteEvent(data);
+    });
+  }
+
+  constructor(private dialog: MatDialog) {
     this.user = null;
     this.servers = [];
     this.webSocket = new WebsocketService();

@@ -12,7 +12,9 @@
 #Room
 	INSERT INTO room (`server_id`, `name`) VALUES ('{server_id}','{name}');
 #Role
-	INSERT INTO role (`server_id`, `name`) VALUES ('{server_id}', '{name}');
+	INSERT INTO role (`server_id`, `name`, `caninvite`, `canchange`) VALUES ('{server_id}', '{name}','{caninvite}','{canchange}');
+#role_user
+	INSERT INTO user_role (`role_id`,`user_id`) VALUES ('{role_id}', '{user_id}');
 
 #----------------------------------SELECT----------------------------------
 #priveleges to send
@@ -55,6 +57,18 @@
 	SELECT name FROM user WHERE id = '{user_id}';
 #is owner
 	SELECT TRUE FROM server WHERE id='{server_id}' AND owner = '{user_id}';
+#Roles Server
+	SELECT id, name, caninvite, canchange FROM role WHERE server_id = '{server_id}';
+#Roles Room
+	SELECT role_id, name, cansee, canwrite, canread FROM room_role WHERE room_id = '1';
+#RoomRole
+	SELECT r.id, r.name, rr.cansee, rr.canwrite, rr.canread FROM room_role rr RIGHT JOIN role r ON (r.id = rr.role_id AND rr.room_id = '{room_id}') WHERE r.server_id = '{server_id}';
+#roomRoleSingle
+	SELECT * FROM room_role WHERE room_id = '{room_id}' AND role_id = '{role_id}';
+#UserRole
+	SELECT r.id, r.name, !ISNULL(user_id) FROM user_role ur RIGHT JOIN role r ON(r.id = ur.role_id AND ur.user_id = '{userId}') WHERE r.server_id = '{serverId}';
+#user_role
+	SELECT * FROM user_role WHERE role_id = '{role_id}' AND user_id = '{user_id}'; 
 
 #----------------------------------DELETE----------------------------------
 #Remove user from Server
@@ -67,9 +81,17 @@
 	DELETE FROM room WHERE id = '{role_id}';
 #Server
 	DELETE FROM server WHERE id = '{server_id}';
+#user_role
+	DELETE FROM user_role WHERE user_id = '{user_id}' AND '{role_id}';
 
 #----------------------------------UPDATE----------------------------------
-#Privileges
-	UPDATE room_role SET cansee = '{valueCanSee}' AND canwrite = '{valueCanWrite}' AND canread = '{valueCanRead}' WHERE role_id = '{role_id}' AND room_id = '{room_id}';
 #lastlogout
 	UPDATE user SET lastlogout = NOW() WHERE id = '{user_id}';
+#update Server name
+	UPDATE server SET name = '{name}' WHERE id = '{server_id}';
+#Update Room name
+	Update room Set name = '{name}' WHERE id = '{room_id}';
+#update Role
+	UPDATE role SET name = '{name}', caninvite = TRUE, canchange = TRUE WHERE id = '{role_id}';
+#update Role Room
+	Update room_role SET cansee = '{cansee}', canwrite = '{canwrite}', canread = '{cansee}' WHERE room_id = '{room_id}' AND role_id = '{role_id}';

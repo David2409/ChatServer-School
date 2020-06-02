@@ -8,8 +8,6 @@ import at.schaefer.david.Exceptions.InvalidMessageException;
 import at.schaefer.david.Exceptions.InvalidOperationException;
 import at.schaefer.david.Exceptions.InvalidUserException;
 import at.schaefer.david.General.Global;
-import at.schaefer.david.General.Room;
-import at.schaefer.david.General.Server;
 import at.schaefer.david.General.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.java_websocket.WebSocket;
@@ -210,6 +208,64 @@ public class ChatServer extends WebSocketServer {
                     throw new InvalidOperationException();
                 }
                 user.GetServer(Long.valueOf(dtoDeleteServer.serverId)).Delete();
+                break;
+
+            case DATA_SERVER:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTOGeneral dtoDataServer = (DTOGeneral) request.obj;
+                if(user.CanModify(Long.valueOf(dtoDataServer.serverId))){
+                    conn.send(new DTOResponse(ResponseType.DATA_SERVER, DTODataServer.GetDTOData(user.GetServer(Long.valueOf(dtoDataServer.serverId)))).toJSON());
+                }
+                break;
+
+            case DATA_ROOM:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTOGeneral dtoDataRoom = (DTOGeneral) request.obj;
+                if(user.CanModify(Long.valueOf(dtoDataRoom.serverId))){
+                    conn.send(new DTOResponse(ResponseType.DATA_ROOM, DTODataRoom.GetDTODataRoom(user.GetServer(Long.valueOf(dtoDataRoom.serverId)).GetRoom(Long.valueOf(dtoDataRoom.roomId)))).toJSON());
+                }
+                break;
+
+            case DATA_USER:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTOGeneral dtoDataUser = (DTOGeneral) request.obj;
+                conn.send(new DTOResponse(ResponseType.DATA_USER, DTODataUser.GetDTODataUser(Long.valueOf(dtoDataUser.serverId), Long.valueOf(dtoDataUser.userId))).toJSON());
+                break;
+
+            case CHANGE_SERVER:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTODataServer dataServer = (DTODataServer) request.obj;
+                if(user.CanModify(Long.valueOf(dataServer.serverId))){
+                    user.GetServer(Long.valueOf(dataServer.serverId)).Update(dataServer);
+                }
+                break;
+
+            case CHANGE_ROOM:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTODataRoom dataRoom = (DTODataRoom) request.obj;
+                if(user.CanModify(Long.valueOf(dataRoom.serverId))){
+                    user.GetServer(Long.valueOf(dataRoom.serverId)).Update(dataRoom);
+                }
+                break;
+
+            case CHANGE_USER:
+                if(user == null){
+                    throw new InvalidOperationException();
+                }
+                DTODataUser dataUser = (DTODataUser) request.obj;
+                if(user.CanModify(Long.valueOf(dataUser.serverId))){
+                    user.GetServer(Long.valueOf(dataUser.serverId)).Update(dataUser);
+                }
                 break;
         }
     }

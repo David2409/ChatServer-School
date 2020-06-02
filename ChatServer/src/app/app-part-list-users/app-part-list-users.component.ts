@@ -21,9 +21,7 @@ export class AppPartListUsersComponent implements OnInit {
   }
 
   EventChannel(event: Event){
-    if(event.type = EventType.REMOVE_USER){
-      event.obj["serverId"] = this.server.id;
-    }
+    event.obj["serverId"] = this.server.id;
     this.eventChannel.emit(event);
   }
 
