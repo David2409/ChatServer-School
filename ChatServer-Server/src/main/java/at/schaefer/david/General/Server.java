@@ -123,7 +123,7 @@ public class Server implements IIndex {
         String username = rs.getString(1);
         statement.close();
         EmitServerMessage("User '" + username + "' has join the Server");
-        Emit(new DTOResponse<DTOUser>(ResponseType.ADDED_USER, DTOUser.GetDTOUser(user)));
+        Emit(new DTOResponse<DTOUserContainer>(ResponseType.ADDED_USER, DTOUserContainer.GetDTOUserContainer(Long.toString(this.id), user.id)));
     }
 
     public void AddUser(long userId) throws SQLException {
@@ -134,7 +134,7 @@ public class Server implements IIndex {
         String username = rs.getString(1);
         statement.close();
         EmitServerMessage("User '" + username + "' has join the Server");
-        Emit(new DTOResponse<DTOUser>(ResponseType.ADDED_USER, DTOUser.GetDTOUser(userId)));
+        Emit(new DTOResponse<DTOUserContainer>(ResponseType.ADDED_USER, DTOUserContainer.GetDTOUserContainer(Long.toString(this.id), userId)));
     }
 
     public void AddUser(String username) throws InvalidUserException, SQLException {

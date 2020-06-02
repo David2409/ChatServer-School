@@ -17,6 +17,7 @@ import { RoomDialog } from './room-dialog';
 import { AppPartDialogModifyRoomComponent } from './app-part-dialog-modify-room/app-part-dialog-modify-room.component';
 import { UserDialog } from './user-dialog';
 import { AppPartDialogModifyUserComponent } from './app-part-dialog-modify-user/app-part-dialog-modify-user.component';
+import { threadId } from 'worker_threads';
 
 
 @Component({
@@ -145,6 +146,9 @@ export class AppComponent {
           server.rooms.push(r.obj);
         }
         break;
+      case ResponseType.ADDED_USER:
+        this.GetServer(r.obj.serverId).offlineUser.push(r.obj.user);
+        break;
       case ResponseType.DELETED_SERVER:
         this.servers.splice(this.GetServerPos((r.obj as General).serverId),1);
         break;
@@ -220,7 +224,9 @@ export class AppComponent {
         }, catchError(error => {
           return throwError('Something went wrong!');
         }))).subscribe((data: any) => {
+          console.log(data);
           this.ExecuteResponse(data);
+          console.log(this.servers);
         });
 
     //this.ExecuteEvent({type:EventType.LOGIN, obj: { username: "Chrascher", password: "test"}});

@@ -221,19 +221,19 @@ public class User {
 
     private void AddServer(Server s){
         synchronized (servers){
-                Server[] newServers = new Server[servers.length+1];
-                int insertPoint = GetInsertionPoint(s.id);
-                int pointOld = 0;
-                for(int i = 0; i < newServers.length; i++) {
-                    if(i == insertPoint) {
-                        newServers[i] = s;
-                    }
-                    else {
-                        newServers[i] = servers[pointOld];
-                        pointOld++;
-                    }
+            Server[] newServers = new Server[servers.length+1];
+            int insertPoint = GetInsertionPoint(s.id);
+            int pointOld = 0;
+            for(int i = 0; i < newServers.length; i++) {
+                if(i == insertPoint) {
+                    newServers[i] = s;
                 }
-                servers = newServers;
+                else {
+                    newServers[i] = servers[pointOld];
+                    pointOld++;
+                }
+            }
+            servers = newServers;
         }
     }
 
