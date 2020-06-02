@@ -46,9 +46,6 @@ public class Room {
     }
 
     public void Emit(User from, String msg) throws SQLException, InvalidMessageException, JsonProcessingException, InvalidOperationException {
-        if(from == null){
-            throw new InvalidOperationException();
-        }
         DTOMessage message = new DTOMessage(server, this, from, msg);
         message.InsertIntoDTB();
         DTOResponse response = new DTOResponse(ResponseType.NEW_MESSAGE, message);

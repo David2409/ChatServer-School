@@ -122,7 +122,7 @@ public class Server implements IIndex {
         rs.next();
         String username = rs.getString(1);
         statement.close();
-        EmitServerMessage("User '" + username + "' has join the Server");
+        EmitServerMessage("User :" + username + ": has join the Server");
         Emit(new DTOResponse<DTOUserContainer>(ResponseType.ADDED_USER, DTOUserContainer.GetDTOUserContainer(Long.toString(this.id), user.id)));
     }
 
@@ -133,7 +133,7 @@ public class Server implements IIndex {
         rs.next();
         String username = rs.getString(1);
         statement.close();
-        EmitServerMessage("User '" + username + "' has join the Server");
+        EmitServerMessage("User :" + username + ": has join the Server");
         Emit(new DTOResponse<DTOUserContainer>(ResponseType.ADDED_USER, DTOUserContainer.GetDTOUserContainer(Long.toString(this.id), userId)));
     }
 
@@ -160,7 +160,7 @@ public class Server implements IIndex {
         rs.next();
         String username = rs.getString(1);
         statement.close();
-        EmitServerMessage("User '" + username + "' has left the Server");
+        EmitServerMessage("User :" + username + ": has left the Server");
         Emit(new DTOResponse<DTOGeneral>(ResponseType.REMOVED_USER, DTOGeneral.GetDTORemoveUser(Long.toString(this.id), Long.toString(userId))));
     }
 
@@ -270,7 +270,7 @@ public class Server implements IIndex {
             if(rooms.length > 0){
                 Emit(null, notificationRoomId, notification);
             }
-        } catch (Exception e) { }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     public DTOResponse GetMap(){

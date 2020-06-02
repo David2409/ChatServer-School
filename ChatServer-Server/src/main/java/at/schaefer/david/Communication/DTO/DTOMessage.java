@@ -36,7 +36,7 @@ public class DTOMessage {
         roomId = room.id;
         if(user == null){
             userId = "NULL";
-            from = "SERVER MESSAGE";
+            from = "SERVER";
         }
         else{
             userId = Long.toString(user.id);
@@ -46,7 +46,7 @@ public class DTOMessage {
         sendedAt = Global.GetDateTime();
     }
 
-    public DTOMessage(long iId,long iServerId, long iRoomId, String iUserid, String iUsername, String iMsg, String iSendedAt){
+    public DTOMessage(long iId, long iServerId, long iRoomId, String iUserid, String iUsername, String iMsg, String iSendedAt){
         iId = id;
         serverId = iServerId;
         roomId = iRoomId;
@@ -62,7 +62,7 @@ public class DTOMessage {
 
     public void InsertIntoDTB() throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
-        statement.execute("INSERT INTO messages (`room_id`, `user_id`, `sendedat`, `msg`) VALUES ('" + roomId + "', '" + userId + "', '" + sendedAt + "', '" + msg + "');", Statement.RETURN_GENERATED_KEYS);
+        statement.execute("INSERT INTO messages (`room_id`, `user_id`, `sendedat`, `msg`) VALUES ('" + roomId + "', " + userId + ", '" + sendedAt + "', '" + msg + "');", Statement.RETURN_GENERATED_KEYS);
         ResultSet rs = statement.getGeneratedKeys();
         rs.next();
         id = rs.getLong(1);
