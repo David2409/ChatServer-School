@@ -17,7 +17,6 @@ import { RoomDialog } from './room-dialog';
 import { AppPartDialogModifyRoomComponent } from './app-part-dialog-modify-room/app-part-dialog-modify-room.component';
 import { UserDialog } from './user-dialog';
 import { AppPartDialogModifyUserComponent } from './app-part-dialog-modify-user/app-part-dialog-modify-user.component';
-import { threadId } from 'worker_threads';
 
 
 @Component({
@@ -142,9 +141,7 @@ export class AppComponent {
         break;
       case ResponseType.NEW_ROOM:
         let server: Server = this.GetServer((r.obj as Room).serverId);
-        if(this.GetRoom(server, (r.obj as Room).id) == null){
-          server.rooms.push(r.obj);
-        }
+        server.rooms.push(r.obj);
         break;
       case ResponseType.ADDED_USER:
         this.GetServer(r.obj.serverId).offlineUser.push(r.obj.user);
