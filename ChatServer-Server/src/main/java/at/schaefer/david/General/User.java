@@ -18,10 +18,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class User {
     public Server[] servers;
@@ -50,8 +47,10 @@ public class User {
     }
 
     public static User GetUser(WebSocket connection, String username, String password) throws SQLException, InvalidUserException, NoSuchAlgorithmException, UnsupportedEncodingException, InvalidOperationException, JsonProcessingException {
-        Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT id, lastlogout FROM user WHERE name = '" + username + "' AND password = '" + Global.HashPassword(password) + "';");
+        PreparedStatement statement = Global.conDatabase.prepareStatement("SELECT id, lastlogout FROM user WHERE name = ? AND password = ?;");
+        statement.setString(1, username);
+        statement.setString(2, Global.HashPassword(password));
+        ResultSet rs = statement.executeQuery();
         boolean result = rs.next();
         long id = 0;
         String lastlogout = "";
@@ -85,8 +84,10 @@ public class User {
     }
 
     public static User CreateUser(WebSocket connection, String username, String password) throws NoSuchAlgorithmException, SQLException, InvalidUserException, UnsupportedEncodingException, InvalidOperationException, JsonProcessingException {
-        Statement statement = Global.conDatabase.createStatement();
-        statement.execute("INSERT INTO user (`name`,`password`) VALUES ('" + username + "','" + Global.HashPassword(password) + "');");
+        PreparedStatement statement = Global.conDatabase.prepareStatement("INSERT INTO user (`name`,`password`) VALUES (?,?);");
+        statement.setString(1, username);
+        statement.setString(2, Global.HashPassword(password));
+        statement.execute();
         statement.close();
         return GetUser(connection, username, password);
     }

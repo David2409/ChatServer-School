@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sun.deploy.util.ArrayUtil;
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -35,8 +36,10 @@ public class Room {
         if(rs.next()){
             name = rs.getString(1);
         }else{
+            statement.close();
             throw new InvalidOperationException();
         }
+        statement.close();
     }
 
     public static Room Get(long id, Server server) throws SQLException, InvalidOperationException {
@@ -65,8 +68,10 @@ public class Room {
     }
 
     public static long Create(long serverId, String name) throws SQLException {
-        Statement statement = Global.conDatabase.createStatement();
-        statement.execute("INSERT INTO room (`server_id`, `name`) VALUES ('" + serverId + "','" + name + "');", Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement statement = Global.conDatabase.prepareStatement("INSERT INTO room (`server_id`, `name`) VALUES (?,?);", Statement.RETURN_GENERATED_KEYS);
+        statement.setLong(1, serverId);
+        statement.setString(2, name);
+        statement.execute();
         ResultSet rs = statement.getGeneratedKeys();
         rs.next();
         long id = rs.getLong(1);
@@ -86,21 +91,41 @@ public class Room {
     }
 
     public void Update(DTODataRoom data) throws SQLException, JsonProcessingException {
-        Statement statement = Global.conDatabase.createStatement();
         if(name != data.name){
             this.name = data.name;
-            statement.execute("Update room Set name = '" + this.name + "' WHERE id = '" + this.id + "';");
+            PreparedStatement statement = Global.conDatabase.prepareStatement("Update room Set name = ? WHERE id = ?;");
+            statement.setString(1, this.name);
+            statement.setLong(2, this.id);
+            statement.execute();
+            statement.close();
             server.Emit(new DTOResponse<DTOUpdateValue>(ResponseType.CHANGED_ROOM_NAME, DTOUpdateValue.GetDTOUpdateValue(Long.toString(server.id), Long.toString(this.id), this.name)));
         }
 
         for (DTORoleRoom role: data.roles) {
-            ResultSet rs = statement.executeQuery("SELECT * FROM room_role WHERE room_id = '" + this.id + "' AND role_id = '" + role.id + "';");
+            PreparedStatement statementHas = Global.conDatabase.prepareStatement("SELECT * FROM room_role WHERE room_id = ? AND role_id = ?;");
+            statementHas.setLong(1, this.id);
+            statementHas.setLong(2, Long.valueOf(role.id));
+            ResultSet rs = statementHas.executeQuery();
             if(rs.next()){
-                statement.execute("Update room_role SET cansee = " + role.cansee + ", canwrite = " + role.canwrite + ", canread = " + role.canread + " WHERE room_id = '" + this.id + "' AND role_id = '" + role.id + "';");
+                PreparedStatement statement = Global.conDatabase.prepareStatement("Update room_role SET cansee = ?, canwrite = ?, canread = ? WHERE room_id = ? AND role_id = ?;");
+                statement.setBoolean(1, role.cansee);
+                statement.setBoolean(2, role.canwrite);
+                statement.setBoolean(3, role.canread);
+                statement.setLong(4, this.id);
+                statement.setLong(5, Long.valueOf(role.id));
+                statement.execute();
+                statement.close();
             }
             else{
-                statement.execute("INSERT INTO room_role (`room_id`,`role_id`,`cansee`,`canwrite`,`canread`) VALUES ('" + this.id + "','" + role.id + "'," + role.cansee + "," + role.canwrite + "," + role.canread + ");");
+                PreparedStatement statement = Global.conDatabase.prepareStatement("INSERT INTO room_role (`room_id`,`role_id`,`cansee`,`canwrite`,`canread`) VALUES (?,?,?,?,?);");
+                statement.setLong(1,this.id);
+                statement.setLong(2,Long.valueOf(role.id));
+                statement.setBoolean(3,role.cansee);
+                statement.setBoolean(4,role.canwrite);
+                statement.setBoolean(5,role.canread);
+                statement.execute();
             }
+            statementHas.close();
         }
         Reload();
     }
@@ -135,8 +160,10 @@ public class Room {
     }
 
     public DTOMessage[] GetMessagesBefore(String time) throws SQLException {
-        Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = '" + this.id + "' AND m.sendedat < '" + time + "' ORDER BY m.sendedat DESC LIMIT 100;");
+        PreparedStatement statement = Global.conDatabase.prepareStatement("SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = ? AND m.sendedat < ? ORDER BY m.sendedat DESC LIMIT 100;");
+        statement.setLong(1, this.id);
+        statement.setString(2, time);
+        ResultSet rs = statement.executeQuery();
         DTOMessage[] erg = DTOMessage.GetArray(rs);
         statement.close();
         ArrayUtils.reverse(erg);
@@ -144,8 +171,10 @@ public class Room {
     }
 
     public DTOMessage[] GetMessagesAfter(String time) throws SQLException {
-        Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = '" + this.id + "' AND m.sendedat > '" + time + "' ORDER BY m.sendedat DESC");
+        PreparedStatement statement = Global.conDatabase.prepareStatement("SELECT r.server_id, m.room_id, m.id, m.user_id, m.sendedat, m.msg, u.name FROM messages m LEFT JOIN user u ON(m.user_id = u.id) JOIN room r ON(r.id = m.room_id) WHERE room_id = ? AND m.sendedat > ? ORDER BY m.sendedat DESC");
+        statement.setLong(1, this.id);
+        statement.setString(2, time);
+        ResultSet rs = statement.executeQuery();
         DTOMessage[] erg = DTOMessage.GetArray(rs);
         statement.close();
         ArrayUtils.reverse(erg);

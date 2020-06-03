@@ -4,4 +4,5 @@ databaseUser=chatserver_server
 databasePassword=goodPassword
 
 #Server Settings
-invalidCharacters=;"'´`,
+invalidCharacters=
+#;"'´`,

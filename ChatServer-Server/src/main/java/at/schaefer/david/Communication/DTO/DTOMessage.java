@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -61,8 +62,12 @@ public class DTOMessage {
     }
 
     public void InsertIntoDTB() throws SQLException {
-        Statement statement = Global.conDatabase.createStatement();
-        statement.execute("INSERT INTO messages (`room_id`, `user_id`, `sendedat`, `msg`) VALUES ('" + roomId + "', " + userId + ", '" + sendedAt + "', '" + msg + "');", Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement statement = Global.conDatabase.prepareStatement("INSERT INTO messages (`room_id`, `user_id`, `sendedat`, `msg`) VALUES (?, ?, ?, ?);", Statement.RETURN_GENERATED_KEYS);
+        statement.setLong(1, roomId);
+        statement.setLong(2, Long.valueOf(userId));
+        statement.setString(3, sendedAt);
+        statement.setString(4, msg);
+        statement.execute();
         ResultSet rs = statement.getGeneratedKeys();
         rs.next();
         id = rs.getLong(1);

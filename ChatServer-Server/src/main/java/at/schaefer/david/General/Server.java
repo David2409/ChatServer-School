@@ -11,6 +11,7 @@ import at.schaefer.david.Structure.Tree;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.nio.ByteBuffer;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -45,8 +46,10 @@ public class Server implements IIndex {
     }
 
     public static Server CreateServer(String name, User user) throws SQLException, InvalidOperationException {
-        Statement statement = Global.conDatabase.createStatement();
-        statement.execute("INSERT INTO server (`name`, `owner`) VALUES ('" + name + "', '" + user.id + "');", Statement.RETURN_GENERATED_KEYS);
+        PreparedStatement statement = Global.conDatabase.prepareStatement("INSERT INTO server (`name`, `owner`) VALUES (?, ?);", Statement.RETURN_GENERATED_KEYS);
+        statement.setString(1, name);
+        statement.setLong(2, user.id);
+        statement.execute();
         ResultSet rs = statement.getGeneratedKeys();
         rs.next();
         long id = rs.getLong(1);
@@ -55,8 +58,9 @@ public class Server implements IIndex {
     }
 
     protected void init() throws SQLException, InvalidOperationException {
-        Statement statement = Global.conDatabase.createStatement();
-        ResultSet rsRooms = statement.executeQuery("SELECT id FROM room WHERE server_id = '" + id + "' ORDER BY id;");
+        PreparedStatement statementRooms = Global.conDatabase.prepareStatement("SELECT id FROM room WHERE server_id = ? ORDER BY id;");
+        statementRooms.setLong(1, this.id);
+        ResultSet rsRooms = statementRooms.executeQuery();
         rsRooms.last();
         rooms = new Room[rsRooms.getRow()];
         rsRooms.first();
@@ -64,7 +68,10 @@ public class Server implements IIndex {
             rooms[i] = Room.Get(rsRooms.getLong(1), this);
             rsRooms.next();
         }
-        ResultSet rs =statement.executeQuery("SELECT notificationroom FROM server WHERE id = '" + this.id + "' AND notificationroom IS NOT NULL;");
+        statementRooms.close();
+        PreparedStatement statementNotification = Global.conDatabase.prepareStatement("SELECT notificationroom FROM server WHERE id = ? AND notificationroom IS NOT NULL;");
+        statementNotification.setLong(1, this.id);
+        ResultSet rs = statementNotification.executeQuery();
         if(rs.next()){
             notificationRoomId = rs.getLong(1);
         }
@@ -76,7 +83,10 @@ public class Server implements IIndex {
                 notificationRoomId = 0;
             }
         }
-        rs = statement.executeQuery("SELECT name, owner FROM server WHERE id = '" + id + "';");
+        statementNotification.close();
+        PreparedStatement statement = Global.conDatabase.prepareStatement("SELECT name, owner FROM server WHERE id = ?;");
+        statement.setLong(1, this.id);
+        rs = statement.executeQuery();
         rs.next();
         name = rs.getString(1);
         ownerId = rs.getLong(2);
@@ -85,16 +95,19 @@ public class Server implements IIndex {
     }
 
     public void Delete() throws SQLException {
-        Statement statement = Global.conDatabase.createStatement();
-        statement.execute("DELETE FROM server WHERE id = '" + this.id + "';");
+        PreparedStatement statement = Global.conDatabase.prepareStatement("DELETE FROM server WHERE id = ?;");
+        statement.setLong(1, this.id);
+        statement.execute();
         statement.close();
         Emit(new DTOResponse<DTOGeneral>(ResponseType.DELETED_SERVER, DTOGeneral.GetDTORemoveServer(Long.toString(this.id))));
     }
 
     public void JoinSession(User user) throws SQLException {
-        Statement statement = Global.conDatabase.createStatement();
+        PreparedStatement statement = Global.conDatabase.prepareStatement("SELECT DISTINCT r.id FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) JOIN role r ON (rr.room_id = r.id) WHERE ur.user_id = ? AND r.server_id = ? GROUP BY rr.room_id HAVING SUM(rr.canread) = '0' ORDER BY r.id;");
+        statement.setLong(1, user.id);
+        statement.setLong(2, this.id);
+        ResultSet rsRooms = statement.executeQuery();
         Emit(new DTOResponse<DTOGeneral>(ResponseType.ONLINE_USER, DTOGeneral.GetDTORemoveUser(Long.toString(this.id), Long.toString(user.id))));
-        ResultSet rsRooms = statement.executeQuery("SELECT DISTINCT r.id FROM user_role ur JOIN room_role rr ON(ur.role_id = rr.role_id) JOIN role r ON (rr.room_id = r.id) WHERE ur.user_id = '" + user.id + "' AND r.server_id = '" + this.id + "' GROUP BY rr.room_id HAVING SUM(rr.canread) = '0' ORDER BY r.id;");
         synchronized (onlineUsers){
             onlineUsers.add(user);
         }
@@ -138,8 +151,9 @@ public class Server implements IIndex {
     }
 
     public void AddUser(String username) throws InvalidUserException, SQLException {
-        Statement statement = Global.conDatabase.createStatement();
-        ResultSet rs = statement.executeQuery("SELECT id FROM user WHERE name = '" + username + "';");
+        PreparedStatement statement = Global.conDatabase.prepareStatement("SELECT id FROM user WHERE name = ?;");
+        statement.setString(1, username);
+        ResultSet rs = statement.executeQuery();
         if(!rs.next()){
             throw new InvalidUserException();
         }
@@ -193,7 +207,11 @@ public class Server implements IIndex {
     public void Update(DTODataServer data) throws SQLException {
         Statement statement = Global.conDatabase.createStatement();
         if(name != data.name){
-            statement.execute("UPDATE server SET name = '" + data.name + "' WHERE id = '" + data.serverId + "';");
+            PreparedStatement statementUpdateName = Global.conDatabase.prepareStatement("UPDATE server SET name = ? WHERE id = ?;");
+            statementUpdateName.setString(1, data.name);
+            statementUpdateName.setLong(2, this.id);
+            statementUpdateName.execute();
+            statementUpdateName.close();
             name = data.name;
             Emit(new DTOResponse(ResponseType.CHANGED_SERVER_NAME, DTOUpdateValue.GetDTOUpdateValue(Long.toString(id), name)));
         }
@@ -201,7 +219,13 @@ public class Server implements IIndex {
             if(role.operation == RoleOperation.DELETE){
                 statement.execute("DELETE FROM role WHERE id = '" + role.id + "'; ");
             } else if(role.operation == RoleOperation.UPDATE){
-                statement.execute("UPDATE role SET name = '" + role.name + "', caninvite = " + role.caninvite + ", canchange = " + role.canchange + " WHERE id = '" + role.id + "'; ");
+                PreparedStatement statementUpdate = Global.conDatabase.prepareStatement("UPDATE role SET name = ?, caninvite = ?, canchange = ? WHERE id = ?;");
+                statementUpdate.setString(1, role.name);
+                statementUpdate.setBoolean(2, role.caninvite);
+                statementUpdate.setBoolean(3, role.canchange);
+                statementUpdate.setLong(4, Long.valueOf(role.id));
+                statementUpdate.execute();
+                statementUpdate.close();
             } else if(role.operation == RoleOperation.NEW){
                 statement.execute("INSERT INTO role (`server_id`, `name`, `caninvite`, `canchange`) VALUES ('" + data.serverId + "', '" + role.name + "'," + role.caninvite + "," + role.canchange + "); ");
             }
