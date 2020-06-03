@@ -141,7 +141,9 @@ export class AppComponent {
         break;
       case ResponseType.NEW_ROOM:
         let server: Server = this.GetServer((r.obj as Room).serverId);
-        server.rooms.push(r.obj);
+        if(this.GetRoom(server, (r.obj as Room).id) == null){
+          server.rooms.push(r.obj);
+        }
         break;
       case ResponseType.ADDED_USER:
         this.GetServer(r.obj.serverId).offlineUser.push(r.obj.user);
