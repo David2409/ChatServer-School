@@ -140,8 +140,10 @@ export class AppComponent {
         this.servers.push(r.obj as Server);
         break;
       case ResponseType.NEW_ROOM:
+        console.log("NEW ROOM")
         let server: Server = this.GetServer((r.obj as Room).serverId);
         if(this.GetRoom(server, (r.obj as Room).id) == null){
+          console.log("ADDED")
           server.rooms.push(r.obj);
         }
         break;
@@ -152,8 +154,8 @@ export class AppComponent {
         this.servers.splice(this.GetServerPos((r.obj as General).serverId),1);
         break;
       case ResponseType.DELETED_ROOM:
-        let s: Server = this.GetServer((r.obj as Room).serverId);
-        s.rooms.splice(this.GetRoomPos(s, (r.obj as Room).id), 1);
+        let s: Server = this.GetServer((r.obj as General).serverId);
+        s.rooms.splice(this.GetRoomPos(s, (r.obj as General).roomId), 1);
         break;
       case ResponseType.ONLINE_USER:
         let data: General = (r.obj as General);
@@ -223,9 +225,11 @@ export class AppComponent {
         }, catchError(error => {
           return throwError('Something went wrong!');
         }))).subscribe((data: any) => {
-          console.log(data);
-          this.ExecuteResponse(data);
-          console.log(this.servers);
+          try{
+            console.log(data);
+            this.ExecuteResponse(data);
+            console.log(this.servers);
+          } catch(E) { console.error(E); }
         });
 
     //this.ExecuteEvent({type:EventType.LOGIN, obj: { username: "Chrascher", password: "test"}});

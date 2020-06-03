@@ -218,9 +218,13 @@ public class Server implements IIndex {
         for (DTORoleUser role: data.roles) {
             ResultSet rs = statement.executeQuery("SELECT * FROM user_role WHERE role_id = '" + role.roleId + "' AND user_id = '" + data.userId + "'; ");
             if(rs.next()){
-                statement.execute("DELETE FROM user_role WHERE user_id = '" + data.userId + "' AND '" + role.roleId + "';");
+                if(role.has == false){
+                    statement.execute("DELETE FROM user_role WHERE user_id = '" + data.userId + "' AND '" + role.roleId + "';");
+                }
             }else{
-                statement.execute("INSERT INTO user_role (`role_id`,`user_id`) VALUES ('" + role.roleId + "', '" + data.userId + "');");
+                if(role.has == true){
+                    statement.execute("INSERT INTO user_role (`role_id`,`user_id`) VALUES ('" + role.roleId + "', '" + data.userId + "');");
+                }
             }
         }
         User u = GetUser(Long.valueOf(data.userId));
@@ -242,6 +246,8 @@ public class Server implements IIndex {
             }
             if(!u.CanSee(this.id, room.id)){
                 u.connection.send(new DTOResponse<DTOGeneral>(ResponseType.DELETED_ROOM, DTOGeneral.GetDTORemoveRoom(Long.toString(this.id), Long.toString(room.id))).toJSON());
+            } else{
+                u.connection.send(new DTOResponse<DTORoom>(ResponseType.NEW_ROOM, DTORoom.GetDTORoom(room, u, Long.toString(this.id))).toJSON());
             }
         }
     }

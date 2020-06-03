@@ -106,11 +106,11 @@ public class Room {
     }
 
     public void Reload() throws SQLException, JsonProcessingException {
-        for (User u: this.activeUsers) {
+        /*for (User u: this.activeUsers) {
             if(!u.CanSee(this.server.id, this.id)){
                 u.connection.send(new DTOResponse<DTOGeneral>(ResponseType.DELETED_ROOM, DTOGeneral.GetDTORemoveRoom(Long.toString(this.server.id), Long.toString(this.id))).toJSON());
             }
-        }
+        }*/
         for (int i = 0; i < this.activeUsers.size(); i++) {
             User u = this.activeUsers.get(i);
             if(!u.CanRead(this.server.id, this.id)){
@@ -120,12 +120,14 @@ public class Room {
         }
 
         for (User u: this.server.onlineUsers) {
-            if(u.CanSee(this.server.id, this.id) && !this.activeUsers.contains(u)){
+            if(u.CanSee(this.server.id, this.id)){
                 u.connection.send(new DTOResponse<DTORoom>(ResponseType.NEW_ROOM, DTORoom.GetDTORoom(this, Long.toString(this.server.id))).toJSON());
+            } else {
+                u.connection.send(new DTOResponse<DTOGeneral>(ResponseType.DELETED_ROOM, DTOGeneral.GetDTORemoveRoom(Long.toString(this.server.id), Long.toString(this.id))).toJSON());
             }
         }
         for (int i = 0; i < this.server.onlineUsers.size(); i++) {
-            User u = this.activeUsers.get(i);
+            User u = this.server.onlineUsers.get(i);
             if(u.CanRead(this.server.id, this.id) && !this.activeUsers.contains(u)){
                 Add(u);
             }
